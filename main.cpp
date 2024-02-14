@@ -3,9 +3,8 @@
 #include "elementary/math.h"
 
 int main() {
-    vec2 v = {874.5f, 1.2553f};
 
-    std::cout << 2 * v << std::endl;
+    std::cout << dot(vec2(2, 0), vec2(1, 1)) << std::endl;
 
     return 0;
 }
