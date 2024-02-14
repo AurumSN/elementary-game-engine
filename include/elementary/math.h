@@ -82,7 +82,6 @@ public:
     float operator[](std::size_t i) const;
 };
 
-// TODO
 class vec3 {
 public:
     static const vec3 zero;
@@ -160,7 +159,6 @@ public:
     float operator[](std::size_t i) const;
 };
 
-// TODO
 class vec4 {
 public:
     static const vec4 zero;

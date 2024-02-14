@@ -411,6 +411,16 @@ const vec4 vec4::backward = vec4(0.0f, 0.0f, -1.0f, 0.0f);
 const vec4 vec4::wforward = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 const vec4 vec4::wbackward = vec4(0.0f, 0.0f, 0.0f, -1.0f);
 
+vec4 vec4::point(const float vec) {
+    return vec4(vec, 0.0f, 0.0f, 1.0f);
+}
+vec4 vec4::point(const vec2 &vec) {
+    return vec4(vec.x, vec.y, 0.0f, 1.0f);
+}
+vec4 vec4::point(const vec3 &vec) {
+    return vec4(vec.x, vec.y, vec.z, 1.0f);
+}
+
 vec4::vec4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
 vec4::vec4(float x) : x(x), y(0.0f), z(0.0f), w(0.0f) {}
 vec4::vec4(float x, float y) : x(x), y(y), z(0.0f), w(0.0f) {}

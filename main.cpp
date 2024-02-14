@@ -4,7 +4,7 @@
 
 int main() {
 
-    std::cout << dot(vec2(2, 0), vec2(1, 1)) << std::endl;
+    std::cout << vec4::point(1.0f) << std::endl;
 
     return 0;
 }
