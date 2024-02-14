@@ -213,7 +213,7 @@ const vec3 vec3::left = vec3(-1.0f, 0.0f, 0.0f);
 const vec3 vec3::up = vec3(0.0f, 1.0f, 0.0f);
 const vec3 vec3::down = vec3(0.0f, -1.0f, 0.0f);
 const vec3 vec3::forward = vec3(0.0f, 0.0f, 1.0f);
-const vec3 vec3::backward = vec3(0.0f, 0.0f, -1.0f);
+const vec3 vec3::back = vec3(0.0f, 0.0f, -1.0f);
 
 vec3::vec3() : x(0.0f), y(0.0f), z(0.0f) {}
 vec3::vec3(float x) : x(x), y(0.0f), z(0.0f) {}
@@ -407,9 +407,9 @@ const vec4 vec4::left = vec4(-1.0f, 0.0f, 0.0f, 0.0f);
 const vec4 vec4::up = vec4(0.0f, 1.0f, 0.0f, 0.0f);
 const vec4 vec4::down = vec4(0.0f, -1.0f, 0.0f, 0.0f);
 const vec4 vec4::forward = vec4(0.0f, 0.0f, 1.0f, 0.0f);
-const vec4 vec4::backward = vec4(0.0f, 0.0f, -1.0f, 0.0f);
+const vec4 vec4::back = vec4(0.0f, 0.0f, -1.0f, 0.0f);
 const vec4 vec4::wforward = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-const vec4 vec4::wbackward = vec4(0.0f, 0.0f, 0.0f, -1.0f);
+const vec4 vec4::wback = vec4(0.0f, 0.0f, 0.0f, -1.0f);
 
 vec4 vec4::point(const float vec) {
     return vec4(vec, 0.0f, 0.0f, 1.0f);
