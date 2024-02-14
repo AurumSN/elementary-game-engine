@@ -91,7 +91,7 @@ public:
     static const vec3 up;
     static const vec3 down;
     static const vec3 forward;
-    static const vec3 backward;
+    static const vec3 back;
 
     float x;
     float y;
@@ -168,9 +168,9 @@ public:
     static const vec4 up;
     static const vec4 down;
     static const vec4 forward;
-    static const vec4 backward;
+    static const vec4 back;
     static const vec4 wforward;
-    static const vec4 wbackward;
+    static const vec4 wback;
 
     static vec4 point(const float vec);
     static vec4 point(const vec2 &vec);
