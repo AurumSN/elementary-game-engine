@@ -5,12 +5,11 @@
 
 float Q_rsqrt(float number);
 
-class vec2;
-class vec3;
-class vec4;
+struct vec2;
+struct vec3;
+struct vec4;
 
-class vec2 {
-public:
+struct vec2 {
     static const vec2 zero;
     static const vec2 one;
     static const vec2 right;
@@ -82,8 +81,7 @@ public:
     float operator[](std::size_t i) const;
 };
 
-class vec3 {
-public:
+struct vec3 {
     static const vec3 zero;
     static const vec3 one;
     static const vec3 right;
@@ -159,8 +157,7 @@ public:
     float operator[](std::size_t i) const;
 };
 
-class vec4 {
-public:
+struct vec4 {
     static const vec4 zero;
     static const vec4 one;
     static const vec4 right;
@@ -275,3 +272,69 @@ std::ostream& operator<<(std::ostream &a, const vec4 &b);
 std::istream& operator>>(std::istream &a, vec2 &b);
 std::istream& operator>>(std::istream &a, vec3 &b);
 std::istream& operator>>(std::istream &a, vec4 &b);
+
+struct mat4x4 {
+    static const mat4x4 zero;
+    static const mat4x4 one;
+    static const mat4x4 identity;
+
+    static mat4x4 translation(const vec3 &t);
+    static mat4x4 scale(const vec3 &t);
+    static mat4x4 rotationX(float angle);
+    static mat4x4 rotationY(float angle);
+    static mat4x4 rotationZ(float angle);
+    static mat4x4 rotation(float x, float y, float z);
+    static mat4x4 orthoLH(float width, float height, float near_plane, float far_plane);
+
+    float mat[4][4] = {};
+    
+    mat4x4();
+    mat4x4(
+        float _11, float _12, float _13, float _14,
+        float _21, float _22, float _23, float _24,
+        float _31, float _32, float _33, float _34,
+        float _41, float _42, float _43, float _44
+    );
+    mat4x4(
+        vec4 _1, 
+        vec4 _2, 
+        vec4 _3, 
+        vec4 _4
+    );
+    mat4x4(
+        float _1[4], 
+        float _2[4], 
+        float _3[4], 
+        float _4[4]
+    );
+    mat4x4(const mat4x4 &mat);
+    mat4x4(const float mat[4][4]);
+
+    mat4x4 operator+() const;
+    mat4x4 operator-() const;
+
+    mat4x4 operator+(const mat4x4 &b) const;
+    mat4x4 operator*(const mat4x4 &b) const;
+    mat4x4 operator*(const float b) const;
+    mat4x4 operator/(const float b) const;
+
+    mat4x4 &operator=(const mat4x4 &b);
+    mat4x4 &operator+=(const mat4x4 &b);
+    mat4x4 &operator*=(const mat4x4 &b);
+    mat4x4 &operator*=(const float b);
+    mat4x4 &operator/=(const float b);
+
+    const float *operator[](std::size_t i) const;
+    float *operator[](std::size_t i);
+};
+
+mat4x4 operator*(const float a, const mat4x4& b);
+
+typedef float cRGBA[4];
+typedef float cRGB[3];
+
+struct VERTEX {
+    vec3 pos;
+    cRGB col;
+    cRGB col1;
+};

@@ -1,10 +1,27 @@
-#include <iostream>
+#include <windows.h>
 
-#include "elementary/math.h"
+#include "graphics/directx11.h"
 
-int main() {
+int WINAPI WinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPSTR lpCmdLine,
+    int nCmdShow
+) {
+    // MessageBox(
+    //     NULL, 
+    //     L"Hello World!", 
+    //     L"Just another Hello World program!",
+    //     MB_ICONEXCLAMATION | MB_OK
+    // );
+    
+    AppWindow window;
+    if (!window.Init(hInstance, hPrevInstance, lpCmdLine, nCmdShow))
+        return 1;
 
-    std::cout << vec4::point(1.0f) << std::endl;
+    while (window.isRunning()) {
+        window.MessageLoop();
+    }
 
     return 0;
 }
