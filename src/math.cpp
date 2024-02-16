@@ -30,6 +30,10 @@ const vec2 vec2::left = vec2(-1.0f, 0.0f);
 const vec2 vec2::up = vec2(0.0f, 1.0f);
 const vec2 vec2::down = vec2(0.0f, -1.0f);
 
+float vec2::dot(const vec2 &a, const vec2& b) {
+    return a.x * b.x + a.y * b.y;
+}
+
 vec2::vec2() : vec2(0.0f, 0.0f) {}
 vec2::vec2(float x) : vec2(x, 0.0f) {}
 vec2::vec2(float x, float y) : x(x), y(y) {}
@@ -54,9 +58,6 @@ vec2 vec2::operator-() const {
     return vec2(-x, -y);
 }
 
-vec2 vec2::operator+(const float b) const {
-    return vec2(x + b, y);
-}
 vec2 vec2::operator+(const vec2 &b) const {
     return vec2(x + b.x, y + b.y);
 }
@@ -67,9 +68,6 @@ vec4 vec2::operator+(const vec4 &b) const {
     return vec4(x + b.x, y + b.y, b.z, b.w);
 }
 
-vec2 vec2::operator-(const float b) const {
-    return vec2(x - b, y);
-}
 vec2 vec2::operator-(const vec2 &b) const {
     return vec2(x - b.x, y - b.y);
 }
@@ -83,80 +81,15 @@ vec4 vec2::operator-(const vec4 &b) const {
 vec2 vec2::operator*(const float b) const {
     return vec2(x * b, y * b);
 }
-vec2 vec2::operator*(const vec2 &b) const {
-    return vec2(x * b.x, y * b.y);
-}
-vec3 vec2::operator*(const vec3 &b) const {
-    return vec3(x * b.x, y * b.y, 0.0f);
-}
-vec4 vec2::operator*(const vec4 &b) const {
-    return vec4(x * b.x, y * b.y, 0.0f, 0.0f);
-}
-
 vec2 vec2::operator/(const float b) const {
     return vec2(x / b, y / b);
 }
-vec2 vec2::operator/(const vec2 &b) const {
-    return vec2(x / b.x, y / b.y);
-}
-vec3 vec2::operator/(const vec3 &b) const {
-    return vec3(x / b.x, y / b.y, 0.0f);
-}
-vec4 vec2::operator/(const vec4 &b) const {
-    return vec4(x / b.x, y / b.y, 0.0f, 0.0f);
-}
 
-vec2 &vec2::operator=(const float b) {
-    x = b;
-    y = 0.0f;
-    return *this;
-}
-vec2 &vec2::operator=(const vec2 &b) {
-    x = b.x;
-    y = b.y;
-    return *this;
-}
-vec2 &vec2::operator=(const vec3 &b) {
-    x = b.x;
-    y = b.y;
-    return *this;
-}
-vec2 &vec2::operator=(const vec4 &b) {
-    x = b.x;
-    y = b.y;
-    return *this;
-}
-
-vec2 &vec2::operator+=(const float b) {
-    *this = *this + b;
-    return *this;
-}
 vec2 &vec2::operator+=(const vec2 &b) {
     *this = *this + b;
     return *this;
 }
-vec2 &vec2::operator+=(const vec3 &b) {
-    *this = *this + b;
-    return *this;
-}
-vec2 &vec2::operator+=(const vec4 &b) {
-    *this = *this + b;
-    return *this;
-}
-
-vec2 &vec2::operator-=(const float b) {
-    *this = *this - b;
-    return *this;
-}
 vec2 &vec2::operator-=(const vec2 &b) {
-    *this = *this - b;
-    return *this;
-}
-vec2 &vec2::operator-=(const vec3 &b) {
-    *this = *this - b;
-    return *this;
-}
-vec2 &vec2::operator-=(const vec4 &b) {
     *this = *this - b;
     return *this;
 }
@@ -165,32 +98,7 @@ vec2 &vec2::operator*=(const float b) {
     *this = *this * b;
     return *this;
 }
-vec2 &vec2::operator*=(const vec2 &b) {
-    *this = *this * b;
-    return *this;
-}
-vec2 &vec2::operator*=(const vec3 &b) {
-    *this = *this * b;
-    return *this;
-}
-vec2 &vec2::operator*=(const vec4 &b) {
-    *this = *this * b;
-    return *this;
-}
-
 vec2 &vec2::operator/=(const float b) {
-    *this = *this / b;
-    return *this;
-}
-vec2 &vec2::operator/=(const vec2 &b) {
-    *this = *this / b;
-    return *this;
-}
-vec2 &vec2::operator/=(const vec3 &b) {
-    *this = *this / b;
-    return *this;
-}
-vec2 &vec2::operator/=(const vec4 &b) {
     *this = *this / b;
     return *this;
 }
@@ -217,11 +125,20 @@ const vec3 vec3::down = vec3(0.0f, -1.0f, 0.0f);
 const vec3 vec3::forward = vec3(0.0f, 0.0f, 1.0f);
 const vec3 vec3::back = vec3(0.0f, 0.0f, -1.0f);
 
+float vec3::dot(const vec3 &a, const vec3& b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+vec3 vec3::cross(const vec3 &a, const vec3& b) {
+    return vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.y);
+}
+
 vec3::vec3() : vec3(0.0f, 0.0f, 0.0f) {}
 vec3::vec3(float x) : vec3(x, 0.0f, 0.0f) {}
 vec3::vec3(float x, float y) : vec3(x, y, 0.0f) {}
 vec3::vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 vec3::vec3(const vec2 &vec) : vec3(vec.x, vec.y, 0.0f) {}
+vec3::vec3(const vec2 &vec, float z) : vec3(vec.x, vec.y, z) {}
+vec3::vec3(float x, const vec2 &vec) : vec3(x, vec.x, vec.y) {}
 vec3::vec3(const vec3 &vec) : vec3(vec.x, vec.y, vec.z) {}
 vec3::vec3(const vec4 &vec) : vec3(vec.x, vec.y, vec.z) {}
 
@@ -229,7 +146,7 @@ float vec3::getMagnitude() const {
     return std::sqrt(x * x + y * y + z * z);
 }
 vec3 vec3::getNormalized() const {
-    // float rsqrt = Q_rsqrt(x * x + y * y); // Possible optimisation
+    // float rsqrt = Q_rsqrt(x * x + y * y + z * z); // Possible optimisation
     float rsqrt = 1 / std::sqrt(x * x + y * y + z * z);
     vec3 res(x * rsqrt, y * rsqrt, z * rsqrt);
     return res;
@@ -242,9 +159,6 @@ vec3 vec3::operator-() const {
     return vec3(-x, -y, -z);
 }
 
-vec3 vec3::operator+(const float b) const {
-    return vec3(x + b, y, z);
-}
 vec3 vec3::operator+(const vec2 &b) const {
     return vec3(x + b.x, y + b.y, z);
 }
@@ -255,9 +169,6 @@ vec4 vec3::operator+(const vec4 &b) const {
     return vec4(x + b.x, y + b.y, z + b.z, b.w);
 }
 
-vec3 vec3::operator-(const float b) const {
-    return vec3(x - b, y, z);
-}
 vec3 vec3::operator-(const vec2 &b) const {
     return vec3(x - b.x, y - b.y, z);
 }
@@ -271,84 +182,16 @@ vec4 vec3::operator-(const vec4 &b) const {
 vec3 vec3::operator*(const float b) const {
     return vec3(x * b, y * b, z * b);
 }
-vec3 vec3::operator*(const vec2 &b) const {
-    return vec3(x * b.x, y * b.y, 0.0f);
-}
-vec3 vec3::operator*(const vec3 &b) const {
-    return vec3(x * b.x, y * b.y, z * b.z);
-}
-vec4 vec3::operator*(const vec4 &b) const {
-    return vec4(x * b.x, y * b.y, z * b.z, 0.0f);
-}
-
 vec3 vec3::operator/(const float b) const {
     return vec3(x / b, y / b, z / b);
 }
-vec3 vec3::operator/(const vec2 &b) const {
-    return vec3(x / b.x, y / b.y, z);
-}
-vec3 vec3::operator/(const vec3 &b) const {
-    return vec3(x / b.x, y / b.y, z / b.z);
-}
-vec4 vec3::operator/(const vec4 &b) const {
-    return vec4(x / b.x, y / b.y, z / b.z, 0.0f);
-}
 
-vec3 &vec3::operator=(const float b) {
-    x = b;
-    y = 0.0f;
-    z = 0.0f;
-    return *this;
-}
-vec3 &vec3::operator=(const vec2 &b) {
-    x = b.x;
-    y = b.y;
-    z = 0.0f;
-    return *this;
-}
-vec3 &vec3::operator=(const vec3 &b) {
-    x = b.x;
-    y = b.y;
-    z = b.z;
-    return *this;
-}
-vec3 &vec3::operator=(const vec4 &b) {
-    x = b.x;
-    y = b.y;
-    z = b.z;
-    return *this;
-}
 
-vec3 &vec3::operator+=(const float b) {
-    *this = *this + b;
-    return *this;
-}
-vec3 &vec3::operator+=(const vec2 &b) {
-    *this = *this + b;
-    return *this;
-}
 vec3 &vec3::operator+=(const vec3 &b) {
     *this = *this + b;
     return *this;
 }
-vec3 &vec3::operator+=(const vec4 &b) {
-    *this = *this + b;
-    return *this;
-}
-
-vec3 &vec3::operator-=(const float b) {
-    *this = *this - b;
-    return *this;
-}
-vec3 &vec3::operator-=(const vec2 &b) {
-    *this = *this - b;
-    return *this;
-}
 vec3 &vec3::operator-=(const vec3 &b) {
-    *this = *this - b;
-    return *this;
-}
-vec3 &vec3::operator-=(const vec4 &b) {
     *this = *this - b;
     return *this;
 }
@@ -357,32 +200,7 @@ vec3 &vec3::operator*=(const float b) {
     *this = *this * b;
     return *this;
 }
-vec3 &vec3::operator*=(const vec2 &b) {
-    *this = *this * b;
-    return *this;
-}
-vec3 &vec3::operator*=(const vec3 &b) {
-    *this = *this * b;
-    return *this;
-}
-vec3 &vec3::operator*=(const vec4 &b) {
-    *this = *this * b;
-    return *this;
-}
-
 vec3 &vec3::operator/=(const float b) {
-    *this = *this / b;
-    return *this;
-}
-vec3 &vec3::operator/=(const vec2 &b) {
-    *this = *this / b;
-    return *this;
-}
-vec3 &vec3::operator/=(const vec3 &b) {
-    *this = *this / b;
-    return *this;
-}
-vec3 &vec3::operator/=(const vec4 &b) {
     *this = *this / b;
     return *this;
 }
@@ -422,6 +240,9 @@ vec4 vec4::point(const vec2 &vec) {
 vec4 vec4::point(const vec3 &vec) {
     return vec4(vec.x, vec.y, vec.z, 1.0f);
 }
+float vec4::dot(const vec4 &a, const vec4& b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
 
 vec4::vec4() : vec4(0.0f, 0.0f, 0.0f, 0.0f) {}
 vec4::vec4(float x) : vec4(x, 0.0f, 0.0f, 0.0f) {}
@@ -429,16 +250,24 @@ vec4::vec4(float x, float y) : vec4(x, y, 0.0f, 0.0f) {}
 vec4::vec4(float x, float y, float z) : vec4(x, y, w, 0.0f) {}
 vec4::vec4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 vec4::vec4(const vec2 &vec) : vec4(vec.x, vec.y, 0.0f, 0.0f) {}
+vec4::vec4(const vec2 &vec, float z) : vec4(vec.x, vec.y, z, 0.0f) {}
+vec4::vec4(float x, const vec2 &vec) : vec4(x, vec.x, vec.y, 0.0f) {}
+vec4::vec4(const vec2 &vec, float z, float w) : vec4(vec.x, vec.y, z, w) {}
+vec4::vec4(float x, const vec2 &vec, float w) : vec4(x, vec.x, vec.y, w) {}
+vec4::vec4(float x, float y, const vec2 &vec) : vec4(x, y, vec.x, vec.y) {}
+vec4::vec4(const vec2 &vec1, const vec2 &vec2) : vec4(vec1.x, vec1.y, vec2.x, vec2.y) {}
 vec4::vec4(const vec3 &vec) : vec4(vec.x, vec.y, vec.z, 0.0f) {}
+vec4::vec4(const vec3 &vec, float w) : vec4(vec.x, vec.y, vec.z, w) {}
+vec4::vec4(float x, const vec3 &vec) : vec4(x, vec.x, vec.y, vec.z) {}
 vec4::vec4(const vec4 &vec) : vec4(vec.x, vec.y, vec.z, vec.w) {}
 
 float vec4::getMagnitude() const {
     return std::sqrt(x * x + y * y + z * z + w * w);
 }
 vec4 vec4::getNormalized() const {
-    // float rsqrt = Q_rsqrt(x * x + y * y); // Possible optimisation
+    // float rsqrt = Q_rsqrt(x * x + y * y + z * z + w * w); // Possible optimisation
     float rsqrt = 1 / std::sqrt(x * x + y * y + z * z + w * w);
-    vec4 res(x * rsqrt, y * rsqrt, z * rsqrt);
+    vec4 res(x * rsqrt, y * rsqrt, z * rsqrt, w * rsqrt);
     return res;
 }
 
@@ -449,9 +278,6 @@ vec4 vec4::operator-() const {
     return vec4(-x, -y, -z, -w);
 }
 
-vec4 vec4::operator+(const float b) const {
-    return vec4(x + b, y, z, w);
-}
 vec4 vec4::operator+(const vec2 &b) const {
     return vec4(x + b.x, y + b.y, z, w);
 }
@@ -462,9 +288,6 @@ vec4 vec4::operator+(const vec4 &b) const {
     return vec4(x + b.x, y + b.y, z + b.z, w + b.w);
 }
 
-vec4 vec4::operator-(const float b) const {
-    return vec4(x - b, y, z, w);
-}
 vec4 vec4::operator-(const vec2 &b) const {
     return vec4(x - b.x, y - b.y, z, w);
 }
@@ -478,85 +301,12 @@ vec4 vec4::operator-(const vec4 &b) const {
 vec4 vec4::operator*(const float b) const {
     return vec4(x * b, y * b, z * b, 0.0f);
 }
-vec4 vec4::operator*(const vec2 &b) const {
-    return vec4(x * b.x, y * b.y, 0.0f, 0.0f);
-}
-vec4 vec4::operator*(const vec3 &b) const {
-    return vec4(x * b.x, y * b.y, z * b.z, 0.0f);
-}
-vec4 vec4::operator*(const vec4 &b) const {
-    return vec4(x * b.x, y * b.y, z * b.z, w * b.w);
-}
-
 vec4 vec4::operator/(const float b) const {
     return vec4(x / b, y / b, z / b, w / b);
 }
-vec4 vec4::operator/(const vec2 &b) const {
-    return vec4(x / b.x, y / b.y, z, w);
-}
-vec4 vec4::operator/(const vec3 &b) const {
-    return vec4(x / b.x, y / b.y, z / b.z, w);
-}
-vec4 vec4::operator/(const vec4 &b) const {
-    return vec4(x / b.x, y / b.y, z / b.z, w / b.w);
-}
 
-vec4 &vec4::operator=(const float b) {
-    x = b;
-    y = 0.0f;
-    z = 0.0f;
-    w = 0.0f;
-    return *this;
-}
-vec4 &vec4::operator=(const vec2 &b) {
-    x = b.x;
-    y = b.y;
-    z = 0.0f;
-    w = 0.0f;
-    return *this;
-}
-vec4 &vec4::operator=(const vec3 &b) {
-    x = b.x;
-    y = b.y;
-    z = b.z;
-    w = 0.0f;
-    return *this;
-}
-vec4 &vec4::operator=(const vec4 &b) {
-    x = b.x;
-    y = b.y;
-    z = b.z;
-    w = b.w;
-    return *this;
-}
-
-vec4 &vec4::operator+=(const float b) {
-    *this = *this + b;
-    return *this;
-}
-vec4 &vec4::operator+=(const vec2 &b) {
-    *this = *this + b;
-    return *this;
-}
-vec4 &vec4::operator+=(const vec3 &b) {
-    *this = *this + b;
-    return *this;
-}
 vec4 &vec4::operator+=(const vec4 &b) {
     *this = *this + b;
-    return *this;
-}
-
-vec4 &vec4::operator-=(const float b) {
-    *this = *this - b;
-    return *this;
-}
-vec4 &vec4::operator-=(const vec2 &b) {
-    *this = *this - b;
-    return *this;
-}
-vec4 &vec4::operator-=(const vec3 &b) {
-    *this = *this - b;
     return *this;
 }
 vec4 &vec4::operator-=(const vec4 &b) {
@@ -568,32 +318,7 @@ vec4 &vec4::operator*=(const float b) {
     *this = *this * b;
     return *this;
 }
-vec4 &vec4::operator*=(const vec2 &b) {
-    *this = *this * b;
-    return *this;
-}
-vec4 &vec4::operator*=(const vec3 &b) {
-    *this = *this * b;
-    return *this;
-}
-vec4 &vec4::operator*=(const vec4 &b) {
-    *this = *this * b;
-    return *this;
-}
-
 vec4 &vec4::operator/=(const float b) {
-    *this = *this / b;
-    return *this;
-}
-vec4 &vec4::operator/=(const vec2 &b) {
-    *this = *this / b;
-    return *this;
-}
-vec4 &vec4::operator/=(const vec3 &b) {
-    *this = *this / b;
-    return *this;
-}
-vec4 &vec4::operator/=(const vec4 &b) {
     *this = *this / b;
     return *this;
 }
@@ -613,55 +338,6 @@ float vec4::operator[](std::size_t i) const {
 
 // --       --
 
-float dot(const float a, const float b) {
-    return a * b;
-}
-float dot(const float a, const vec2 &b) {
-    return a * b.x;
-}
-float dot(const float a, const vec3 &b) {
-    return a * b.x;
-}
-float dot(const float a, const vec4 &b) {
-    return a * b.x;
-}
-float dot(const vec2 &a, const float b) {
-    return a.x * b;
-}
-float dot(const vec2 &a, const vec2 &b) {
-    return a.x * b.x + a.y * b.y;
-}
-float dot(const vec2 &a, const vec3 &b) {
-    return a.x * b.x + a.y * b.y;
-}
-float dot(const vec2 &a, const vec4 &b) {
-    return a.x * b.x + a.y * b.y;
-}
-float dot(const vec3 &a, const float b) {
-    return a.x * b;
-}
-float dot(const vec3 &a, const vec2 &b) {
-    return a.x * b.x + a.y * b.y;
-}
-float dot(const vec3 &a, const vec3 &b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-float dot(const vec3 &a, const vec4 &b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-float dot(const vec4 &a, const float b) {
-    return a.x * b;
-}
-float dot(const vec4 &a, const vec2 &b) {
-    return a.x * b.x + a.y * b.y;
-}
-float dot(const vec4 &a, const vec3 &b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-float dot(const vec4 &a, const vec4 &b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-}
-
 vec2 operator*(const float a, const vec2& b) {
     return b * a;
 }
@@ -670,15 +346,6 @@ vec3 operator*(const float a, const vec3& b) {
 }
 vec4 operator*(const float a, const vec4& b) {
     return b * a;
-}
-vec2 operator/(const float a, const vec2& b) {
-    return vec2(a / b.x, 0.0f);
-}
-vec3 operator/(const float a, const vec3& b) {
-    return vec3(a / b.x, 0.0f, 0.0f);
-}
-vec4 operator/(const float a, const vec4& b) {
-    return vec4(a / b.x, 0.0f, 0.0f, 0.0f);
 }
 
 std::ostream& operator<<(std::ostream& a, const vec2& b)
@@ -885,11 +552,12 @@ mat4x4 mat4x4::operator+(const mat4x4 &b) const {
             retval[i][j] = mat[i][j] + b[i][j];
     return retval;
 }
-mat4x4 mat4x4::operator*(const mat4x4 &b) const {
-    mat4x4 retval = zero;
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            retval[i][j] = mat[i][0] * b[0][j] + mat[i][1] * b[1][j] + mat[i][2] * b[2][j] + mat[i][3] * b[3][j];
+vec4 mat4x4::operator*(const vec4 &b) const {
+    vec4 retval = vec4::zero;
+    retval.x = mat[0][0] * b.x + mat[0][1] * b.y + mat[0][2] * b.z + mat[0][3] * b.w;
+    retval.y = mat[1][0] * b.x + mat[1][1] * b.y + mat[1][2] * b.z + mat[1][3] * b.w;
+    retval.z = mat[2][0] * b.x + mat[2][1] * b.y + mat[2][2] * b.z + mat[2][3] * b.w;
+    retval.w = mat[3][0] * b.x + mat[3][1] * b.y + mat[3][2] * b.z + mat[3][3] * b.w;
     return retval;
 }
 mat4x4 mat4x4::operator*(const float b) const {
@@ -907,12 +575,6 @@ mat4x4 mat4x4::operator/(const float b) const {
     return retval;
 }
 
-mat4x4 &mat4x4::operator=(const mat4x4 &b) {
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            mat[i][j] = b[i][j];
-    return *this;
-}
 mat4x4 &mat4x4::operator+=(const mat4x4 &b) {
     *this = *this + b;
     return *this;

@@ -17,6 +17,8 @@ struct vec2 {
     static const vec2 up;
     static const vec2 down;
 
+    static float dot(const vec2 &a, const vec2& b);
+
     float x;
     float y;
 
@@ -33,50 +35,22 @@ struct vec2 {
     vec2 operator+() const;
     vec2 operator-() const;
 
-    vec2 operator+(const float b) const;
     vec2 operator+(const vec2 &b) const;
     vec3 operator+(const vec3 &b) const;
     vec4 operator+(const vec4 &b) const;
 
-    vec2 operator-(const float b) const;
     vec2 operator-(const vec2 &b) const;
     vec3 operator-(const vec3 &b) const;
     vec4 operator-(const vec4 &b) const;
 
     vec2 operator*(const float b) const;
-    vec2 operator*(const vec2 &b) const;
-    vec3 operator*(const vec3 &b) const;
-    vec4 operator*(const vec4 &b) const;
-
     vec2 operator/(const float b) const;
-    vec2 operator/(const vec2 &b) const;
-    vec3 operator/(const vec3 &b) const;
-    vec4 operator/(const vec4 &b) const;
 
-    vec2 &operator=(const float b);
-    vec2 &operator=(const vec2 &b);
-    vec2 &operator=(const vec3 &b);
-    vec2 &operator=(const vec4 &b);
-
-    vec2 &operator+=(const float b);
     vec2 &operator+=(const vec2 &b);
-    vec2 &operator+=(const vec3 &b);
-    vec2 &operator+=(const vec4 &b);
-
-    vec2 &operator-=(const float b);
     vec2 &operator-=(const vec2 &b);
-    vec2 &operator-=(const vec3 &b);
-    vec2 &operator-=(const vec4 &b);
 
     vec2 &operator*=(const float b);
-    vec2 &operator*=(const vec2 &b);
-    vec2 &operator*=(const vec3 &b);
-    vec2 &operator*=(const vec4 &b);
-
     vec2 &operator/=(const float b);
-    vec2 &operator/=(const vec2 &b);
-    vec2 &operator/=(const vec3 &b);
-    vec2 &operator/=(const vec4 &b);
 
     float operator[](std::size_t i) const;
 };
@@ -91,6 +65,9 @@ struct vec3 {
     static const vec3 forward;
     static const vec3 back;
 
+    static float dot(const vec3 &a, const vec3& b);
+    static vec3 cross(const vec3 &a, const vec3& b);
+
     float x;
     float y;
     float z;
@@ -100,6 +77,8 @@ struct vec3 {
     vec3(float x, float y);
     vec3(float x, float y, float z);
     vec3(const vec2 &vec);
+    vec3(const vec2 &vec, float z);
+    vec3(float x, const vec2 &vec);
     vec3(const vec3 &vec);
     vec3(const vec4 &vec);
     
@@ -109,50 +88,22 @@ struct vec3 {
     vec3 operator+() const;
     vec3 operator-() const;
 
-    vec3 operator+(const float b) const;
     vec3 operator+(const vec2 &b) const;
     vec3 operator+(const vec3 &b) const;
     vec4 operator+(const vec4 &b) const;
 
-    vec3 operator-(const float b) const;
     vec3 operator-(const vec2 &b) const;
     vec3 operator-(const vec3 &b) const;
     vec4 operator-(const vec4 &b) const;
 
     vec3 operator*(const float b) const;
-    vec3 operator*(const vec2 &b) const;
-    vec3 operator*(const vec3 &b) const;
-    vec4 operator*(const vec4 &b) const;
-
     vec3 operator/(const float b) const;
-    vec3 operator/(const vec2 &b) const;
-    vec3 operator/(const vec3 &b) const;
-    vec4 operator/(const vec4 &b) const;
 
-    vec3 &operator=(const float b);
-    vec3 &operator=(const vec2 &b);
-    vec3 &operator=(const vec3 &b);
-    vec3 &operator=(const vec4 &b);
-
-    vec3 &operator+=(const float b);
-    vec3 &operator+=(const vec2 &b);
     vec3 &operator+=(const vec3 &b);
-    vec3 &operator+=(const vec4 &b);
-
-    vec3 &operator-=(const float b);
-    vec3 &operator-=(const vec2 &b);
     vec3 &operator-=(const vec3 &b);
-    vec3 &operator-=(const vec4 &b);
 
     vec3 &operator*=(const float b);
-    vec3 &operator*=(const vec2 &b);
-    vec3 &operator*=(const vec3 &b);
-    vec3 &operator*=(const vec4 &b);
-
     vec3 &operator/=(const float b);
-    vec3 &operator/=(const vec2 &b);
-    vec3 &operator/=(const vec3 &b);
-    vec3 &operator/=(const vec4 &b);
 
     float operator[](std::size_t i) const;
 };
@@ -172,6 +123,7 @@ struct vec4 {
     static vec4 point(const float vec);
     static vec4 point(const vec2 &vec);
     static vec4 point(const vec3 &vec);
+    static float dot(const vec4 &a, const vec4& b);
 
     float x;
     float y;
@@ -184,7 +136,15 @@ struct vec4 {
     vec4(float x, float y, float z);
     vec4(float x, float y, float z, float w);
     vec4(const vec2 &vec);
+    vec4(const vec2 &vec, float z);
+    vec4(float x, const vec2 &vec);
+    vec4(const vec2 &vec, float z, float w);
+    vec4(float x, const vec2 &vec, float w);
+    vec4(float x, float y, const vec2 &vec);
+    vec4(const vec2 &vec1, const vec2 &vec2);
     vec4(const vec3 &vec);
+    vec4(const vec3 &vec, float w);
+    vec4(float x, const vec3 &vec);
     vec4(const vec4 &vec);
     
     float getMagnitude() const;
@@ -193,77 +153,30 @@ struct vec4 {
     vec4 operator+() const;
     vec4 operator-() const;
 
-    vec4 operator+(const float b) const;
     vec4 operator+(const vec2 &b) const;
     vec4 operator+(const vec3 &b) const;
     vec4 operator+(const vec4 &b) const;
 
-    vec4 operator-(const float b) const;
     vec4 operator-(const vec2 &b) const;
     vec4 operator-(const vec3 &b) const;
     vec4 operator-(const vec4 &b) const;
 
     vec4 operator*(const float b) const;
-    vec4 operator*(const vec2 &b) const;
-    vec4 operator*(const vec3 &b) const;
-    vec4 operator*(const vec4 &b) const;
 
     vec4 operator/(const float b) const;
-    vec4 operator/(const vec2 &b) const;
-    vec4 operator/(const vec3 &b) const;
-    vec4 operator/(const vec4 &b) const;
 
-    vec4 &operator=(const float b);
-    vec4 &operator=(const vec2 &b);
-    vec4 &operator=(const vec3 &b);
-    vec4 &operator=(const vec4 &b);
-
-    vec4 &operator+=(const float b);
-    vec4 &operator+=(const vec2 &b);
-    vec4 &operator+=(const vec3 &b);
     vec4 &operator+=(const vec4 &b);
-
-    vec4 &operator-=(const float b);
-    vec4 &operator-=(const vec2 &b);
-    vec4 &operator-=(const vec3 &b);
     vec4 &operator-=(const vec4 &b);
 
     vec4 &operator*=(const float b);
-    vec4 &operator*=(const vec2 &b);
-    vec4 &operator*=(const vec3 &b);
-    vec4 &operator*=(const vec4 &b);
-
     vec4 &operator/=(const float b);
-    vec4 &operator/=(const vec2 &b);
-    vec4 &operator/=(const vec3 &b);
-    vec4 &operator/=(const vec4 &b);
 
     float operator[](std::size_t i) const;
 };
 
-float dot(const float a, const float b);
-float dot(const float a, const vec2 &b);
-float dot(const float a, const vec3 &b);
-float dot(const float a, const vec4 &b);
-float dot(const vec2 &a, const float b);
-float dot(const vec2 &a, const vec2 &b);
-float dot(const vec2 &a, const vec3 &b);
-float dot(const vec2 &a, const vec4 &b);
-float dot(const vec3 &a, const float b);
-float dot(const vec3 &a, const vec2 &b);
-float dot(const vec3 &a, const vec3 &b);
-float dot(const vec3 &a, const vec4 &b);
-float dot(const vec4 &a, const float b);
-float dot(const vec4 &a, const vec2 &b);
-float dot(const vec4 &a, const vec3 &b);
-float dot(const vec4 &a, const vec4 &b);
-
 vec2 operator*(const float a, const vec2& b);
 vec3 operator*(const float a, const vec3& b);
 vec4 operator*(const float a, const vec4& b);
-vec2 operator/(const float a, const vec2& b);
-vec3 operator/(const float a, const vec3& b);
-vec4 operator/(const float a, const vec4& b);
 
 std::ostream& operator<<(std::ostream &a, const vec2 &b);
 std::ostream& operator<<(std::ostream &a, const vec3 &b);
@@ -286,7 +199,7 @@ struct mat4x4 {
     static mat4x4 rotation(float x, float y, float z);
     static mat4x4 orthoLH(float width, float height, float near_plane, float far_plane);
 
-    float mat[4][4] = {};
+    float mat[4][4] = {}; 
     
     mat4x4();
     mat4x4(
@@ -315,10 +228,10 @@ struct mat4x4 {
 
     mat4x4 operator+(const mat4x4 &b) const;
     mat4x4 operator*(const mat4x4 &b) const;
+    vec4 operator*(const vec4 &b) const;
     mat4x4 operator*(const float b) const;
     mat4x4 operator/(const float b) const;
 
-    mat4x4 &operator=(const mat4x4 &b);
     mat4x4 &operator+=(const mat4x4 &b);
     mat4x4 &operator*=(const mat4x4 &b);
     mat4x4 &operator*=(const float b);
