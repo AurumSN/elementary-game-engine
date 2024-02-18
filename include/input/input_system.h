@@ -1,18 +1,11 @@
 #pragma once
 
-#include "elementary/math.h"
-
 #include <unordered_set>
+#include "elementary/math.h"
 
 class InputListener {
 public:
-    InputListener() {
-
-    }
-
-    ~InputListener() {
-
-    }
+    InputListener();
 
     virtual void onKeyDown(int key) = 0;
     virtual void onKeyUp(int key) = 0;
@@ -29,7 +22,7 @@ public:
 class InputSystem {
 public:
     InputSystem();
-    ~InputSystem();
+    bool Release();
 
     void Update();
     void AddListener(InputListener *listener);

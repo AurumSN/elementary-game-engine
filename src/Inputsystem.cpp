@@ -7,8 +7,9 @@ InputSystem::InputSystem() {
 
 }
 
-InputSystem::~InputSystem() {
-
+bool InputSystem::Release() {
+    delete this;
+    return true;
 }
 
 void InputSystem::Update() {

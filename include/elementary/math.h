@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstring>
 #include <iostream>
 
 float Q_rsqrt(float number);
@@ -120,8 +119,6 @@ struct vec4 {
     static const vec4 wforward;
     static const vec4 wback;
 
-    static vec4 point(const float vec);
-    static vec4 point(const vec2 &vec);
     static vec4 point(const vec3 &vec);
     static float dot(const vec4 &a, const vec4& b);
 
@@ -209,10 +206,10 @@ struct mat4x4 {
         float _41, float _42, float _43, float _44
     );
     mat4x4(
-        vec4 _1, 
-        vec4 _2, 
-        vec4 _3, 
-        vec4 _4
+        const vec4 &_1, 
+        const vec4 &_2, 
+        const vec4 &_3, 
+        const vec4 &_4
     );
     mat4x4(
         float _1[4], 

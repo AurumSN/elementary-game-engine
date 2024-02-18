@@ -1,8 +1,6 @@
 #include "graphics/window.h"
 
 #include <d3d11.h>
-#include <d3dcompiler.h>
-#include <iostream>
 #include "elementary/math.h"
 #include "input/input_system.h"
 
@@ -74,8 +72,8 @@ public:
     virtual void onRightMouseDown(const vec2 &delta_mouse_pos);
     virtual void onRightMouseUp(const vec2 &delta_mouse_pos);
 private:
-    InputSystem input;
-    GraphicsEngine engine;
+    InputSystem *input;
+    GraphicsEngine *engine;
     ID3D11VertexShader *vs;
     ID3D11PixelShader *ps;
 
