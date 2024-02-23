@@ -14,15 +14,19 @@ LRESULT CALLBACK WindowProc(
 
 class Window {
 public:
+    // Window(
+    //     HINSTANCE hInstance,
+    //     HINSTANCE hPrevInstance,
+    //     LPSTR lpCmdLine,
+    //     int nCmdShow
+    // );
     Window();
-    Window(const Window &) = delete;
-
-    bool Init(HINSTANCE hInstance,
+    void Init(HINSTANCE hInstance,
         HINSTANCE hPrevInstance,
         LPSTR lpCmdLine,
-        int nCmdShow
-    );
-    bool Release();
+        int nCmdShow);
+    Window(const Window &) = delete;
+    ~Window();
 
     int MessageLoop();
 

@@ -27,6 +27,7 @@ vec3::vec3(const vec2 &vec, float z) : vec3(vec.x, vec.y, z) {}
 vec3::vec3(float x, const vec2 &vec) : vec3(x, vec.x, vec.y) {}
 vec3::vec3(const vec3 &vec) : vec3(vec.x, vec.y, vec.z) {}
 vec3::vec3(const vec4 &vec) : vec3(vec.x, vec.y, vec.z) {}
+vec3::vec3(const float a[3]) : vec3(a[0], a[1], a[2]) {}
 
 float vec3::getMagnitude() const {
     return std::sqrt(x * x + y * y + z * z);

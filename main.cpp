@@ -1,6 +1,7 @@
 #include <windows.h>
 
 #include "graphics/directx11.h"
+#include <stdexcept>
 
 int WINAPI WinMain(
     HINSTANCE hInstance,
@@ -14,10 +15,10 @@ int WINAPI WinMain(
     //     L"Just another Hello World program!",
     //     MB_ICONEXCLAMATION | MB_OK
     // );
-    
+
     AppWindow window;
-    if (!window.Init(hInstance, hPrevInstance, lpCmdLine, nCmdShow))
-        return 1;
+    
+    window.Init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 
     while (window.isRunning()) {
         window.MessageLoop();

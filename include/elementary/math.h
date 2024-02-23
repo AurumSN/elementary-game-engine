@@ -27,6 +27,7 @@ struct vec2 {
     vec2(const vec2 &vec);
     vec2(const vec3 &vec);
     vec2(const vec4 &vec);
+    vec2(const float a[2]);
     
     float getMagnitude() const;
     vec2 getNormalized() const;
@@ -80,6 +81,7 @@ struct vec3 {
     vec3(float x, const vec2 &vec);
     vec3(const vec3 &vec);
     vec3(const vec4 &vec);
+    vec3(const float a[3]);
     
     float getMagnitude() const;
     vec3 getNormalized() const;
@@ -143,6 +145,7 @@ struct vec4 {
     vec4(const vec3 &vec, float w);
     vec4(float x, const vec3 &vec);
     vec4(const vec4 &vec);
+    vec4(const float a[4]);
     
     float getMagnitude() const;
     vec4 getNormalized() const;
@@ -194,6 +197,7 @@ struct mat4x4 {
     static mat4x4 rotationY(float angle);
     static mat4x4 rotationZ(float angle);
     static mat4x4 rotation(float x, float y, float z);
+    static mat4x4 perspectiveFovLH(float fov, float aspect, float znear, float zfar);
     static mat4x4 orthoLH(float width, float height, float near_plane, float far_plane);
 
     float mat[4][4] = {}; 
@@ -219,6 +223,16 @@ struct mat4x4 {
     );
     mat4x4(const mat4x4 &mat);
     mat4x4(const float mat[4][4]);
+
+    float getDeterminant() const;
+    float getMinor(const int rows[3], const int columns[3]) const;
+    float getMinor2(const int rows[2], const int columns[2]) const;
+    mat4x4 getInverse() const;
+
+    vec3 getXDirection() const;
+    vec3 getYDirection() const;
+    vec3 getZDirection() const;
+    vec3 getTranslation() const;
 
     mat4x4 operator+() const;
     mat4x4 operator-() const;

@@ -1,5 +1,8 @@
 #include "graphics/window.h"
 
+#include <stdexcept>
+#include <iostream>
+
 LRESULT CALLBACK WindowProc(
     HWND hWnd,
     UINT Msg,
@@ -36,7 +39,7 @@ LRESULT CALLBACK WindowProc(
 
 Window::Window() {}
 
-bool Window::Init(
+void Window::Init(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
@@ -61,7 +64,7 @@ bool Window::Init(
     wc.lpfnWndProc = WindowProc;
 
     if (!RegisterClassEx(&wc))
-        return false;
+        throw std::runtime_error("Could not register class");
 
     RECT wr = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
@@ -82,21 +85,17 @@ bool Window::Init(
     );
 
     if (!hWnd)
-        return false;
+        throw std::runtime_error("Could not create window");
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
     bRunning = true;
-
-    return true;
 }
 
-bool Window::Release() {
-    if (!DestroyWindow(hWnd))
-        return false;
-
-    return true;
+Window::~Window() {
+    DestroyWindow(hWnd);
+        //throw std::runtime_error("Could not destroy window");
 }
 
 int Window::MessageLoop() {

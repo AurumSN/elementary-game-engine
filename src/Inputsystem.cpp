@@ -2,19 +2,14 @@
 
 #include <Windows.h>
 #include <cstring>
+#include <iostream>
 
-InputSystem::InputSystem() {
-
-}
-
-bool InputSystem::Release() {
-    delete this;
-    return true;
-}
+InputSystem::InputSystem() {}
 
 void InputSystem::Update() {
-    POINT current_mouse_pos = {};
-    GetCursorPos(&current_mouse_pos);
+    POINT cmp = {};
+    GetCursorPos(&cmp);
+    vec2 current_mouse_pos = vec2(cmp.x, cmp.y);
 
     if (first_time) {
         old_mouse_pos = vec2(current_mouse_pos.x, current_mouse_pos.y);
@@ -25,7 +20,7 @@ void InputSystem::Update() {
         std::unordered_set<InputListener *>::iterator it = m_set_listeners.begin();
 
         while (it != m_set_listeners.end()) {
-            (*it)->onMouseMove(vec2(current_mouse_pos.x - old_mouse_pos.x, current_mouse_pos.y - old_mouse_pos.y));
+            (*it)->onMouseMove(vec2(current_mouse_pos.x, current_mouse_pos.y));
             it++;
         }
     }
@@ -79,4 +74,13 @@ void InputSystem::AddListener(InputListener *listener) {
 
 void InputSystem::RemoveListener(InputListener *listener) {
     m_set_listeners.erase(listener);
+}
+
+void InputSystem::SetCursorPosition(const vec2 &pos) {
+    SetCursorPos(pos.x, pos.y);
+}
+
+
+void InputSystem::ShowCursor(bool show) {
+    ::ShowCursor(show);
 }

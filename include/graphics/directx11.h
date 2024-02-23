@@ -1,23 +1,23 @@
 #include "graphics/window.h"
 
 #include <d3d11.h>
+#include <chrono>
 #include "elementary/math.h"
 #include "input/input_system.h"
 
-class GraphicsEngine {
+class RenderSystem {
 public:
-    GraphicsEngine();
-    GraphicsEngine(const GraphicsEngine &) = delete;
-    bool Init(HWND hWnd, int width, int height);
-    bool Release();
+    RenderSystem(HWND hWnd, int width, int height);
+    RenderSystem(const RenderSystem &) = delete;
+    ~RenderSystem();
 
-    bool CreateVertexBuffer(void *list_vertices, UINT size_vertex, UINT size_list);
-    bool CreateIndexBuffer(void *list_indices, UINT size_list);
-    bool CreateConstantBuffer(void *buffer, UINT size_buffer);
+    void CreateVertexBuffer(void *list_vertices, UINT size_vertex, UINT size_list);
+    void CreateIndexBuffer(void *list_indices, UINT size_list);
+    void CreateConstantBuffer(void *buffer, UINT size_buffer);
     void UpdateConstantBuffer(void *buffer);
-    bool Present(bool vsync);
+    void Present(bool vsync);
 
-    bool CompileShader(const wchar_t *file_name, const char *entry_point_name, const char *target_name);
+    void CompileShader(const wchar_t *file_name, const char *entry_point_name, const char *target_name);
     ID3D11VertexShader *CreateVertexShader();
     ID3D11PixelShader *CreatePixelShader();
     void ReleaseBlob();
@@ -53,8 +53,25 @@ private:
     ID3D11Buffer *pCBuffer = nullptr;
 };
 
+class GraphicsEngine {
+public:
+    GraphicsEngine(HWND hWnd, int width, int height);
+    GraphicsEngine(const GraphicsEngine &) = delete;
+    ~GraphicsEngine();
+
+    RenderSystem *getRenderSystem();
+private:
+    RenderSystem *render_system = nullptr;
+};
+
 class AppWindow : public Window, public InputListener {
 public:
+    // AppWindow(
+    //     HINSTANCE hInstance,
+    //     HINSTANCE hPrevInstance,
+    //     LPSTR lpCmdLine,
+    //     int nCmdShow
+    // );
     AppWindow();
     AppWindow(const AppWindow &) = delete;
 
@@ -66,19 +83,19 @@ public:
 
     virtual void onKeyDown(int key);
     virtual void onKeyUp(int key);
-    virtual void onMouseMove(const vec2 &delta_mouse_pos);
-    virtual void onLeftMouseDown(const vec2 &delta_mouse_pos);
-    virtual void onLeftMouseUp(const vec2 &delta_mouse_pos);
-    virtual void onRightMouseDown(const vec2 &delta_mouse_pos);
-    virtual void onRightMouseUp(const vec2 &delta_mouse_pos);
+    virtual void onMouseMove(const vec2 &mouse_pos);
+    virtual void onLeftMouseDown(const vec2 &mouse_pos);
+    virtual void onLeftMouseUp(const vec2 &mouse_pos);
+    virtual void onRightMouseDown(const vec2 &mouse_pos);
+    virtual void onRightMouseUp(const vec2 &mouse_pos);
 private:
     InputSystem *input;
     GraphicsEngine *engine;
     ID3D11VertexShader *vs;
     ID3D11PixelShader *ps;
-
-    float old_delta;
-    float new_delta;
+    
+    std::chrono::system_clock::time_point old_delta;
+    std::chrono::system_clock::time_point new_delta;
     float delta_time;
 
     float delta_pos;
@@ -88,4 +105,13 @@ private:
     float rot_y = 0.0f;
 
     float scale_cube = 1;
+    float forward = 0.0f;
+    float rightward = 0.0f;
+    float upward = 0.0f;
+
+    bool hideMouse = false;
+    bool lastHideMouse = false;
+    vec2 lastMousePos = vec2(0, 0);
+
+    mat4x4 world_cam;
 };

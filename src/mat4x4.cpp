@@ -78,6 +78,21 @@ mat4x4 mat4x4::rotationZ(float angle) {
 mat4x4 mat4x4::rotation(float x, float y, float z) {
     return rotationZ(z) * rotationY(y) * rotationX(x);
 }
+mat4x4 mat4x4::perspectiveFovLH(float fov, float aspect, float znear, float zfar) {
+    mat4x4 retval = identity;
+
+    float yscale = 1.0f / tan(fov / 2.0f);
+    float xscale = yscale / aspect;
+
+    retval[0][0] = xscale;
+    retval[1][1] = yscale;
+    retval[2][2] = zfar / (zfar - znear);
+    retval[2][3] = 1.0f;
+    retval[3][2] = (-znear * zfar) / (zfar - znear);
+    retval[3][3] = 0.0f;
+
+    return retval;
+}
 mat4x4 mat4x4::orthoLH(float width, float height, float near_plane, float far_plane) {
     mat4x4 retval = identity;
 
@@ -143,6 +158,91 @@ mat4x4::mat4x4(
 mat4x4::mat4x4(const mat4x4 &mat) : mat4x4(mat.mat) {}
 mat4x4::mat4x4(const float mat[4][4]) {
     std::memcpy(this->mat, mat, sizeof(float) * 4 * 4);
+}
+
+float mat4x4::getDeterminant() const {
+    return mat[0][0] * mat[1][1] * mat[2][2] * mat[3][3] -
+           mat[0][0] * mat[1][1] * mat[2][3] * mat[3][2] -
+           mat[0][0] * mat[1][2] * mat[2][1] * mat[3][3] +
+           mat[0][0] * mat[1][2] * mat[2][3] * mat[3][1] +
+           mat[0][0] * mat[1][3] * mat[2][1] * mat[3][2] -
+           mat[0][0] * mat[1][3] * mat[2][2] * mat[3][1] -
+           mat[0][1] * mat[1][0] * mat[2][2] * mat[3][3] +
+           mat[0][1] * mat[1][0] * mat[2][3] * mat[3][2] +
+           mat[0][1] * mat[1][2] * mat[2][0] * mat[3][3] -
+           mat[0][1] * mat[1][2] * mat[2][3] * mat[3][0] -
+           mat[0][1] * mat[1][3] * mat[2][0] * mat[3][2] +
+           mat[0][1] * mat[1][3] * mat[2][2] * mat[3][0] +
+
+           mat[0][2] * mat[1][0] * mat[2][1] * mat[3][3] -
+           mat[0][2] * mat[1][0] * mat[2][3] * mat[3][1] -
+           mat[0][2] * mat[1][1] * mat[2][0] * mat[3][3] +
+           mat[0][2] * mat[1][1] * mat[2][3] * mat[3][0] +
+           mat[0][2] * mat[1][3] * mat[2][0] * mat[3][1] -
+           mat[0][2] * mat[1][3] * mat[2][1] * mat[3][0] -
+           mat[0][3] * mat[1][0] * mat[2][1] * mat[3][2] +
+           mat[0][3] * mat[1][0] * mat[2][2] * mat[3][1] +
+           mat[0][3] * mat[1][1] * mat[2][0] * mat[3][2] -
+           mat[0][3] * mat[1][1] * mat[2][2] * mat[3][0] -
+           mat[0][3] * mat[1][2] * mat[2][0] * mat[3][1] +
+           mat[0][3] * mat[1][2] * mat[2][1] * mat[3][0];
+}
+
+float mat4x4::getMinor(const int rows[3], const int columns[3]) const {
+    return mat[rows[0]][columns[0]] * mat[rows[1]][columns[1]] * mat[rows[2]][columns[2]] -
+           mat[rows[0]][columns[0]] * mat[rows[1]][columns[2]] * mat[rows[2]][columns[1]] -
+           mat[rows[0]][columns[1]] * mat[rows[1]][columns[0]] * mat[rows[2]][columns[2]] +
+           mat[rows[0]][columns[1]] * mat[rows[1]][columns[2]] * mat[rows[2]][columns[0]] +
+           mat[rows[0]][columns[2]] * mat[rows[1]][columns[0]] * mat[rows[2]][columns[1]] -
+           mat[rows[0]][columns[2]] * mat[rows[1]][columns[1]] * mat[rows[2]][columns[0]];
+}
+
+float mat4x4::getMinor2(const int rows[2], const int columns[2]) const {
+    return mat[rows[0]][columns[0]] * mat[rows[1]][columns[1]] - mat[rows[0]][columns[1]] * mat[rows[1]][columns[0]];
+}
+
+mat4x4 mat4x4::getInverse() const {
+    float det = getDeterminant();
+    if (det < 0.001f && det > -0.001f)
+        return mat4x4();
+
+    mat4x4 ret;
+
+    int cuts[4][4] = {
+        {1, 2, 3},
+        {0, 2, 3},
+        {0, 1, 3},
+        {0, 1, 2}
+    };
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            int sgn;
+            if ((i + j) % 2 == 0)
+                sgn = 1;
+            else
+                sgn = -1;
+
+            ret[j][i] = sgn * getMinor(cuts[i], cuts[j]);
+        }
+    }
+
+    ret /= getDeterminant();
+
+    return ret;
+}
+
+vec3 mat4x4::getXDirection() const {
+    return vec3(mat[0]);
+}
+vec3 mat4x4::getYDirection() const {
+    return vec3(mat[1]);
+}
+vec3 mat4x4::getZDirection() const {
+    return vec3(mat[2]);
+}
+vec3 mat4x4::getTranslation() const {
+    return vec3(mat[3]);
 }
 
 mat4x4 mat4x4::operator+() const {
