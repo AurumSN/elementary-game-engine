@@ -1,7 +1,6 @@
 #include <windows.h>
 
 #include "graphics/directx11.h"
-#include <stdexcept>
 
 int WINAPI WinMain(
     HINSTANCE hInstance,

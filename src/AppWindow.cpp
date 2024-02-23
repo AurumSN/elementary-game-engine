@@ -2,6 +2,9 @@
 
 #include "elementary/math.h"
 
+#include <typeinfo>
+#include <iostream>
+
 
 #ifdef __GNUC__
 #define ALIGN(x) __attribute__((aligned(x)))
@@ -141,7 +144,7 @@ void AppWindow::onUpdate() {
         100.0f
     );
     
-    std::cout << 1.0 / delta_time << std::endl;
+    //std::cout << 1.0 / delta_time << std::endl;
 
     cc.m_time = GetTickCount();
     engine->getRenderSystem()->UpdateConstantBuffer(&cc);

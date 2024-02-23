@@ -1,7 +1,6 @@
 #include "graphics/window.h"
 
 #include <stdexcept>
-#include <iostream>
 
 LRESULT CALLBACK WindowProc(
     HWND hWnd,

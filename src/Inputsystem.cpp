@@ -2,7 +2,6 @@
 
 #include <Windows.h>
 #include <cstring>
-#include <iostream>
 
 InputSystem::InputSystem() {}
 

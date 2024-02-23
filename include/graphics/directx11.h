@@ -94,8 +94,8 @@ private:
     ID3D11VertexShader *vs;
     ID3D11PixelShader *ps;
     
-    std::chrono::system_clock::time_point old_delta;
-    std::chrono::system_clock::time_point new_delta;
+    std::chrono::high_resolution_clock::time_point old_delta;
+    std::chrono::high_resolution_clock::time_point new_delta;
     float delta_time;
 
     float delta_pos;
