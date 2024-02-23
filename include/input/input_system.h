@@ -21,7 +21,9 @@ public:
 
 class InputSystem {
 public:
-    InputSystem();
+    static InputSystem *Get();
+    static void Create();
+    static void Release();
 
     void Update();
     void AddListener(InputListener *listener);
@@ -30,9 +32,14 @@ public:
     void SetCursorPosition(const vec2 &pos);
     void ShowCursor(bool show);
 private:
+    static InputSystem *input;
+
     std::unordered_set<InputListener *> m_set_listeners;
     unsigned char keys_state[256] = {};
     unsigned char old_keys_state[256] = {};
     vec2 old_mouse_pos;
     bool first_time = true;
+
+    InputSystem();
+    ~InputSystem();
 };

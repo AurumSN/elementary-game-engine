@@ -1,6 +1,7 @@
 #include "graphics/window.h"
 
 #include <stdexcept>
+#include <iostream>
 
 LRESULT CALLBACK WindowProc(
     HWND hWnd,
@@ -11,22 +12,22 @@ LRESULT CALLBACK WindowProc(
     Window *window;
     switch (Msg) {
     case WM_CREATE:
-        window = (Window *)((LPCREATESTRUCT)lParam)->lpCreateParams;
-        SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)window);
-        window->setHWND(hWnd);
-        window->onCreate();
+        
         break;
     case WM_SETFOCUS:
         window = (Window *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-        window->onFocus();
+        if (window)
+            window->onFocus();
         break;
     case WM_KILLFOCUS:
         window = (Window *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-        window->onKillFocus();
+        if (window)
+            window->onKillFocus();
         break;
     case WM_DESTROY:
         window = (Window *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-        window->onDestroy();
+        if (window)
+            window->onDestroy();
         PostQuitMessage(0);
         break;
     default:
@@ -36,13 +37,13 @@ LRESULT CALLBACK WindowProc(
     return 0;
 }
 
-Window::Window() {}
-
-void Window::Init(
+Window::Window(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
-    int nCmdShow
+    int nCmdShow,
+    int width,
+    int height
 ) {
 
     WNDCLASSEX wc;
@@ -65,7 +66,7 @@ void Window::Init(
     if (!RegisterClassEx(&wc))
         throw std::runtime_error("Could not register class");
 
-    RECT wr = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    RECT wr = {0, 0, width, height};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
 
     hWnd = CreateWindowEx(
@@ -80,7 +81,7 @@ void Window::Init(
         nullptr, 
         nullptr, 
         hInstance, 
-        this
+        nullptr
     );
 
     if (!hWnd)
@@ -98,6 +99,12 @@ Window::~Window() {
 }
 
 int Window::MessageLoop() {
+
+    if (!this->bIsInit) {
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)this);
+        this->onCreate();
+        this->bIsInit = true;
+    }
     this->onUpdate();
 
     MSG msg;
@@ -118,6 +125,9 @@ int Window::MessageLoop() {
 }
 
 bool Window::isRunning() {
+    if (bRunning)
+        MessageLoop();
+        
     return bRunning;
 }
 
@@ -138,7 +148,4 @@ RECT Window::getClientWindowRect() {
 
 HWND Window::getHWND() {
     return hWnd;
-}
-void Window::setHWND(HWND hWnd) {
-    this->hWnd = hWnd;
 }

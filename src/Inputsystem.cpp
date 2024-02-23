@@ -2,8 +2,30 @@
 
 #include <Windows.h>
 #include <cstring>
+#include <stdexcept>
+
+InputSystem *InputSystem::input = nullptr;
+
+InputSystem *InputSystem::Get() {
+    return input;
+}
+
+void InputSystem::Create() {
+    if (input)
+        throw std::runtime_error("Input System already exists");
+
+    input = new InputSystem();
+}
+
+void InputSystem::Release() {
+    if (input)
+        delete input;
+}
 
 InputSystem::InputSystem() {}
+InputSystem::~InputSystem() {
+    input = nullptr;
+}
 
 void InputSystem::Update() {
     POINT cmp = {};

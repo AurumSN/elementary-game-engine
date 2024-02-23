@@ -1,9 +1,9 @@
-#include "graphics/directx11.h"
+#include "graphics/window.h"
 
 #include "elementary/math.h"
+#include "graphics/directx11.h"
 
-#include <typeinfo>
-#include <iostream>
+//#include <iostream>
 
 
 #ifdef __GNUC__
@@ -31,19 +31,34 @@ struct ALIGN(16) constant {
 //     nCmdShow
 // ) {}
 
-AppWindow::AppWindow() : Window::Window() {}
+AppWindow::AppWindow(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPSTR lpCmdLine,
+    int nCmdShow,
+    int width,
+    int height
+) : Window::Window(
+    hInstance,
+    hPrevInstance,
+    lpCmdLine,
+    nCmdShow,
+    width,
+    height
+) {}
 
 void AppWindow::onCreate() {
     Window::onCreate();
 
-    input = new InputSystem();
-    engine = new GraphicsEngine(hWnd, SCREEN_WIDTH, SCREEN_HEIGHT);
+    RECT rc = getClientWindowRect();
 
-    input->AddListener(this);
-    input->ShowCursor(!hideMouse);
+    GraphicsEngine::Get()->GetRenderSystem()->CreateDeviceAndSwapChain(hWnd, rc.right - rc.left, rc.bottom - rc.top);
+
+    InputSystem::Get()->AddListener(this);
+    InputSystem::Get()->ShowCursor(!hideMouse);
     if (hideMouse) {
-        lastMousePos = vec2(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
-        input->SetCursorPosition(lastMousePos);
+        lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
+        InputSystem::Get()->SetCursorPosition(lastMousePos);
     }
     else {
         POINT current_mouse_pos = {};
@@ -82,22 +97,21 @@ void AppWindow::onCreate() {
     };
 
     UINT size_index_list = ARRAYSIZE(index_list);
+    GraphicsEngine::Get()->GetRenderSystem()->CreateIndexBuffer(index_list, size_index_list);
 
-    engine->getRenderSystem()->CreateIndexBuffer(index_list, size_index_list);
+    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/VertexShader.hlsl", "vsmain", "vs_5_0");
+    vs = GraphicsEngine::Get()->GetRenderSystem()->CreateVertexShader();
+    GraphicsEngine::Get()->GetRenderSystem()->CreateVertexBuffer(vertex_list, sizeof(VERTEX), size_vertex_list);
+    GraphicsEngine::Get()->GetRenderSystem()->ReleaseBlob();
 
-    engine->getRenderSystem()->CompileShader(L"shaders/VertexShader.hlsl", "vsmain", "vs_5_0");
-    vs = engine->getRenderSystem()->CreateVertexShader();
-    engine->getRenderSystem()->CreateVertexBuffer(vertex_list, sizeof(VERTEX), size_vertex_list);
-    engine->getRenderSystem()->ReleaseBlob();
-
-    engine->getRenderSystem()->CompileShader(L"shaders/PixelShader.hlsl", "psmain", "ps_5_0");
-    ps = engine->getRenderSystem()->CreatePixelShader();
-    engine->getRenderSystem()->ReleaseBlob();
+    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/PixelShader.hlsl", "psmain", "ps_5_0");
+    ps = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader();
+    GraphicsEngine::Get()->GetRenderSystem()->ReleaseBlob();
 
     constant cc;
     cc.m_time = 0;
 
-    engine->getRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
+    GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
     
     new_delta = std::chrono::high_resolution_clock::now();
 }
@@ -105,12 +119,12 @@ void AppWindow::onCreate() {
 void AppWindow::onUpdate() {
     Window::onUpdate();
 
-    input->Update();
+    InputSystem::Get()->Update();
     
-    engine->getRenderSystem()->ClearRenderTargetColor(0, 0.3f, 0.4f, 1);
+    GraphicsEngine::Get()->GetRenderSystem()->ClearRenderTargetColor(0, 0.3f, 0.4f, 1);
 
     RECT rc = getClientWindowRect();
-    engine->getRenderSystem()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
+    GraphicsEngine::Get()->GetRenderSystem()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
     ///
     constant cc;
@@ -144,24 +158,24 @@ void AppWindow::onUpdate() {
         100.0f
     );
     
-    //std::cout << 1.0 / delta_time << std::endl;
+    // std::cout << 1.0 / delta_time << std::endl;
 
     cc.m_time = GetTickCount();
-    engine->getRenderSystem()->UpdateConstantBuffer(&cc);
+    GraphicsEngine::Get()->GetRenderSystem()->UpdateConstantBuffer(&cc);
     ///
 
-    engine->getRenderSystem()->SetConstantBuffer(vs);
-    engine->getRenderSystem()->SetConstantBuffer(ps);
+    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(vs);
+    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(ps);
 
-    engine->getRenderSystem()->SetVertexShader(vs);
-    engine->getRenderSystem()->SetPixelShader(ps);
+    GraphicsEngine::Get()->GetRenderSystem()->SetVertexShader(vs);
+    GraphicsEngine::Get()->GetRenderSystem()->SetPixelShader(ps);
 
-    engine->getRenderSystem()->SetVertexBuffer();
-    engine->getRenderSystem()->SetIndexBuffer();
+    GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer();
+    GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer();
 
-    engine->getRenderSystem()->DrawIndexedTriangleList();
+    GraphicsEngine::Get()->GetRenderSystem()->DrawIndexedTriangleList();
 
-    engine->getRenderSystem()->Present(true);
+    GraphicsEngine::Get()->GetRenderSystem()->Present(true);
 
     old_delta = new_delta;
     new_delta = std::chrono::high_resolution_clock::now();
@@ -174,17 +188,15 @@ void AppWindow::onDestroy() {
 
     ps->Release();
     vs->Release();
-
-    delete input;
-    delete engine;
 }
 
 void AppWindow::onFocus() {
     Window::onFocus();
-    input->AddListener(this);
+    InputSystem::Get()->AddListener(this);
     if (hideMouse) {
-        lastMousePos = vec2(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
-        input->SetCursorPosition(lastMousePos);
+        RECT rc = getClientWindowRect();
+        lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
+        InputSystem::Get()->SetCursorPosition(lastMousePos);
     }
     else {
         POINT current_mouse_pos = {};
@@ -195,7 +207,7 @@ void AppWindow::onFocus() {
 
 void AppWindow::onKillFocus() {
     Window::onKillFocus();
-    input->RemoveListener(this);
+    InputSystem::Get()->RemoveListener(this);
 }
 
 void AppWindow::onKeyDown(int key) {
@@ -213,11 +225,11 @@ void AppWindow::onKeyDown(int key) {
         upward = -1.0f;
     else if (key == VK_ESCAPE && lastHideMouse == hideMouse) {
         hideMouse = !hideMouse;
-        input->ShowCursor(!hideMouse);
+        InputSystem::Get()->ShowCursor(!hideMouse);
         if (hideMouse) {
             RECT rc = getClientWindowRect();
             lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
-            input->SetCursorPosition(lastMousePos);
+            InputSystem::Get()->SetCursorPosition(lastMousePos);
         }
     }
 }
@@ -242,7 +254,7 @@ void AppWindow::onMouseMove(const vec2 &mouse_pos) {
     if (hideMouse) {
         RECT rc = getClientWindowRect();
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
-        input->SetCursorPosition(lastMousePos);
+        InputSystem::Get()->SetCursorPosition(lastMousePos);
     }
     else
         lastMousePos = mouse_pos;

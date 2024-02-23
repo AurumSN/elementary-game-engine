@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include "elementary/math.h"
 
-RenderSystem::RenderSystem(HWND hWnd, int width, int height) {
+RenderSystem::RenderSystem() {
     // D3D_DRIVER_TYPE driver_types[] = {
     //     D3D_DRIVER_TYPE_HARDWARE,
     //     D3D_DRIVER_TYPE_WARP,
@@ -32,21 +32,8 @@ RenderSystem::RenderSystem(HWND hWnd, int width, int height) {
 
 
 
-    DXGI_SWAP_CHAIN_DESC scd;
-
-    ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-    scd.BufferCount = 1;
-    scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    scd.BufferDesc.RefreshRate.Numerator = 144;
-    scd.BufferDesc.RefreshRate.Denominator = 1;
-    scd.BufferDesc.Width = width;
-    scd.BufferDesc.Height = height;
-    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    scd.OutputWindow = hWnd;
-    scd.SampleDesc.Count = 4;
-    scd.Windowed = TRUE;
-    scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    
+    // scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
     //     desc.BufferCount = 1;
 //     desc.BufferDesc.Width = width;
 //     desc.BufferDesc.Height = height;
@@ -59,26 +46,7 @@ RenderSystem::RenderSystem(HWND hWnd, int width, int height) {
 //     desc.SampleDesc.Quality = 0;
 //     desc.Windowed = TRUE;
 
-    D3D11CreateDeviceAndSwapChain(
-        nullptr, 
-        D3D_DRIVER_TYPE_HARDWARE, 
-        nullptr, 
-        0,
-        nullptr,
-        0,
-        D3D11_SDK_VERSION,
-        &scd,
-        &swapchain,
-        &dev,
-        nullptr,
-        &devcon
-    );
-
-    ID3D11Texture2D *pBackBuffer;
-    swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID *)&pBackBuffer);
-
-    dev->CreateRenderTargetView(pBackBuffer, nullptr, &backbuffer);
-    pBackBuffer->Release();
+    
 
     // return true;
 
@@ -150,6 +118,44 @@ RenderSystem::~RenderSystem() {
     pIBuffer->Release();
     pCBuffer->Release();
     pLayout->Release();
+}
+
+void RenderSystem::CreateDeviceAndSwapChain(HWND hWnd, int width, int height) {
+    DXGI_SWAP_CHAIN_DESC scd;
+
+    ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
+
+    scd.BufferCount = 1;
+    scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    scd.BufferDesc.RefreshRate.Numerator = 60;
+    scd.BufferDesc.RefreshRate.Denominator = 1;
+    scd.BufferDesc.Width = width;
+    scd.BufferDesc.Height = height;
+    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    scd.OutputWindow = hWnd;
+    scd.SampleDesc.Count = 4;
+    scd.Windowed = TRUE;
+
+    D3D11CreateDeviceAndSwapChain(
+        nullptr, 
+        D3D_DRIVER_TYPE_HARDWARE, 
+        nullptr, 
+        0,
+        nullptr,
+        0,
+        D3D11_SDK_VERSION,
+        &scd,
+        &swapchain,
+        &dev,
+        nullptr,
+        &devcon
+    );
+
+    ID3D11Texture2D *pBackBuffer;
+    swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID *)&pBackBuffer);
+
+    dev->CreateRenderTargetView(pBackBuffer, nullptr, &backbuffer);
+    pBackBuffer->Release();
 }
 
 void RenderSystem::CreateVertexBuffer(void *list_vertices, UINT size_vertex, UINT size_list) {

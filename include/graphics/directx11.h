@@ -1,16 +1,14 @@
-#include "graphics/window.h"
+#pragma once
 
 #include <d3d11.h>
-#include <chrono>
-#include "elementary/math.h"
-#include "input/input_system.h"
 
 class RenderSystem {
 public:
-    RenderSystem(HWND hWnd, int width, int height);
+    RenderSystem();
     RenderSystem(const RenderSystem &) = delete;
     ~RenderSystem();
 
+    void CreateDeviceAndSwapChain(HWND hWnd, int width, int height);
     void CreateVertexBuffer(void *list_vertices, UINT size_vertex, UINT size_list);
     void CreateIndexBuffer(void *list_indices, UINT size_list);
     void CreateConstantBuffer(void *buffer, UINT size_buffer);
@@ -55,63 +53,19 @@ private:
 
 class GraphicsEngine {
 public:
-    GraphicsEngine(HWND hWnd, int width, int height);
+    static GraphicsEngine *Get();
+    static void Create();
+    static void Release();
+
     GraphicsEngine(const GraphicsEngine &) = delete;
-    ~GraphicsEngine();
 
-    RenderSystem *getRenderSystem();
+    RenderSystem *GetRenderSystem();
+
 private:
+    static GraphicsEngine *engine;
+
     RenderSystem *render_system = nullptr;
-};
 
-class AppWindow : public Window, public InputListener {
-public:
-    // AppWindow(
-    //     HINSTANCE hInstance,
-    //     HINSTANCE hPrevInstance,
-    //     LPSTR lpCmdLine,
-    //     int nCmdShow
-    // );
-    AppWindow();
-    AppWindow(const AppWindow &) = delete;
-
-    virtual void onCreate() override;
-    virtual void onUpdate() override;
-    virtual void onDestroy() override;
-    virtual void onFocus() override;
-    virtual void onKillFocus() override;
-
-    virtual void onKeyDown(int key);
-    virtual void onKeyUp(int key);
-    virtual void onMouseMove(const vec2 &mouse_pos);
-    virtual void onLeftMouseDown(const vec2 &mouse_pos);
-    virtual void onLeftMouseUp(const vec2 &mouse_pos);
-    virtual void onRightMouseDown(const vec2 &mouse_pos);
-    virtual void onRightMouseUp(const vec2 &mouse_pos);
-private:
-    InputSystem *input;
-    GraphicsEngine *engine;
-    ID3D11VertexShader *vs;
-    ID3D11PixelShader *ps;
-    
-    std::chrono::high_resolution_clock::time_point old_delta;
-    std::chrono::high_resolution_clock::time_point new_delta;
-    float delta_time;
-
-    float delta_pos;
-    float delta_scale;
-
-    float rot_x = 0.0f;
-    float rot_y = 0.0f;
-
-    float scale_cube = 1;
-    float forward = 0.0f;
-    float rightward = 0.0f;
-    float upward = 0.0f;
-
-    bool hideMouse = false;
-    bool lastHideMouse = false;
-    vec2 lastMousePos = vec2(0, 0);
-
-    mat4x4 world_cam;
+    GraphicsEngine();
+    ~GraphicsEngine();
 };
