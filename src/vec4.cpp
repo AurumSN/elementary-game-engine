@@ -37,6 +37,7 @@ vec4::vec4(const vec3 &vec, float w) : vec4(vec.x, vec.y, vec.z, w) {}
 vec4::vec4(float x, const vec3 &vec) : vec4(x, vec.x, vec.y, vec.z) {}
 vec4::vec4(const vec4 &vec) : vec4(vec.x, vec.y, vec.z, vec.w) {}
 vec4::vec4(const float a[4]) : vec4(a[0], a[1], a[2], a[3]) {}
+vec4::~vec4() {}
 
 float vec4::getMagnitude() const {
     return std::sqrt(x * x + y * y + z * z + w * w);

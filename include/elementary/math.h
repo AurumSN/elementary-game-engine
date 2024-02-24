@@ -28,6 +28,7 @@ struct vec2 {
     vec2(const vec3 &vec);
     vec2(const vec4 &vec);
     vec2(const float a[2]);
+    ~vec2();
     
     float getMagnitude() const;
     vec2 getNormalized() const;
@@ -82,6 +83,7 @@ struct vec3 {
     vec3(const vec3 &vec);
     vec3(const vec4 &vec);
     vec3(const float a[3]);
+    ~vec3();
     
     float getMagnitude() const;
     vec3 getNormalized() const;
@@ -146,6 +148,7 @@ struct vec4 {
     vec4(float x, const vec3 &vec);
     vec4(const vec4 &vec);
     vec4(const float a[4]);
+    ~vec4();
     
     float getMagnitude() const;
     vec4 getNormalized() const;
@@ -223,6 +226,7 @@ struct mat4x4 {
     );
     mat4x4(const mat4x4 &mat);
     mat4x4(const float mat[4][4]);
+    ~mat4x4();
 
     float getDeterminant() const;
     float getMinor(const int rows[3], const int columns[3]) const;
@@ -258,7 +262,6 @@ typedef float cRGBA[4];
 typedef float cRGB[3];
 
 struct VERTEX {
-    vec3 pos;
-    cRGB col;
-    cRGB col1;
+    vec3 position;
+    vec2 texcoord;
 };

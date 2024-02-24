@@ -38,14 +38,16 @@ AppWindow::AppWindow(
     int nCmdShow,
     int width,
     int height
-) : Window::Window(
+) : Window(
     hInstance,
     hPrevInstance,
     lpCmdLine,
     nCmdShow,
     width,
     height
-) {}
+), InputListener() {}
+
+AppWindow::~AppWindow() {}
 
 void AppWindow::onCreate() {
     Window::onCreate();
@@ -56,6 +58,9 @@ void AppWindow::onCreate() {
 
     InputSystem::Get()->AddListener(this);
     InputSystem::Get()->ShowCursor(!hideMouse);
+
+    wood_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\wood.jpg");
+
     if (hideMouse) {
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
         InputSystem::Get()->SetCursorPosition(lastMousePos);
@@ -68,50 +73,98 @@ void AppWindow::onCreate() {
 
     world_cam = mat4x4::translation(vec3(0, 0, -2));
 
+    vec3 position_list[] = {
+        {-0.5f, -0.5f, -0.5f},
+        {-0.5f,  0.5f, -0.5f},
+        { 0.5f,  0.5f, -0.5f},
+        { 0.5f, -0.5f, -0.5f},
+        { 0.5f, -0.5f,  0.5f},
+        { 0.5f,  0.5f,  0.5f},
+        {-0.5f,  0.5f,  0.5f},
+        {-0.5f, -0.5f,  0.5f}
+    };
+
+    vec3 texcoord_list[] = {
+        {0.0f, 0.0f},
+        {0.0f, 1.0f},
+        {1.0f, 0.0f},
+        {1.0f, 1.0f}
+    };
+
     VERTEX vertex_list[] = {
-        {{-0.5f, -0.5f, -0.5f}, {0, 0, 0}, {1, 1, 1}},
-        {{-0.5f,  0.5f, -0.5f}, {0, 1, 0}, {1, 0, 1}},
-        {{ 0.5f,  0.5f, -0.5f}, {1, 1, 0}, {0, 0, 1}},
-        {{ 0.5f, -0.5f, -0.5f}, {1, 0, 0}, {0, 1, 1}},
-        {{ 0.5f, -0.5f,  0.5f}, {1, 0, 1}, {0, 1, 0}},
-        {{ 0.5f,  0.5f,  0.5f}, {1, 1, 1}, {0, 0, 0}},
-        {{-0.5f,  0.5f,  0.5f}, {0, 1, 1}, {1, 0, 0}},
-        {{-0.5f, -0.5f,  0.5f}, {0, 0, 1}, {1, 1, 0}}
+        {position_list[0], texcoord_list[1]},
+        {position_list[1], texcoord_list[0]},
+        {position_list[2], texcoord_list[2]},
+        {position_list[3], texcoord_list[3]},
+
+        {position_list[4], texcoord_list[1]},
+        {position_list[5], texcoord_list[0]},
+        {position_list[6], texcoord_list[2]},
+        {position_list[7], texcoord_list[3]},
+
+        {position_list[1], texcoord_list[1]},
+        {position_list[6], texcoord_list[0]},
+        {position_list[5], texcoord_list[2]},
+        {position_list[2], texcoord_list[3]},
+
+        {position_list[7], texcoord_list[1]},
+        {position_list[0], texcoord_list[0]},
+        {position_list[3], texcoord_list[2]},
+        {position_list[4], texcoord_list[3]},
+
+        {position_list[3], texcoord_list[1]},
+        {position_list[2], texcoord_list[0]},
+        {position_list[5], texcoord_list[2]},
+        {position_list[4], texcoord_list[3]},
+
+        {position_list[7], texcoord_list[1]},
+        {position_list[6], texcoord_list[0]},
+        {position_list[1], texcoord_list[2]},
+        {position_list[0], texcoord_list[3]}
     };
     
     UINT size_vertex_list = ARRAYSIZE(vertex_list);
 
     UINT index_list[] = {
-        0, 1, 2, 
-        2, 3, 0,
-        4, 5, 6,
-        6, 7, 4,
-        1, 6, 5,
-        5, 2, 1,
-        7, 0, 3,
-        3, 4, 7,
-        3, 2, 5,
-        5, 4, 3,
-        7, 6, 1,
-        1, 0, 7
+         0,  1,  2, 
+         2,  3,  0,
+
+         4,  5,  6,
+         6,  7,  4,
+
+         8,  9, 10,
+        10, 11,  8,
+
+        12, 13, 14,
+        14, 15, 12,
+
+        16, 17, 18,
+        18, 19, 16,
+
+        20, 21, 22,
+        22, 23, 20
     };
 
     UINT size_index_list = ARRAYSIZE(index_list);
-    GraphicsEngine::Get()->GetRenderSystem()->CreateIndexBuffer(index_list, size_index_list);
 
-    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/VertexShader.hlsl", "vsmain", "vs_5_0");
-    vs = GraphicsEngine::Get()->GetRenderSystem()->CreateVertexShader();
-    GraphicsEngine::Get()->GetRenderSystem()->CreateVertexBuffer(vertex_list, sizeof(VERTEX), size_vertex_list);
-    GraphicsEngine::Get()->GetRenderSystem()->ReleaseBlob();
+    index_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateIndexBuffer(index_list, size_index_list);
 
-    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/PixelShader.hlsl", "psmain", "ps_5_0");
-    ps = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader();
-    GraphicsEngine::Get()->GetRenderSystem()->ReleaseBlob();
+    void *shader_byte_code = nullptr;
+    size_t shader_byte_size = 0;
+
+    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/VertexShader.hlsl", "vsmain", "vs_5_0", &shader_byte_code, &shader_byte_size);
+    vertex_shader = GraphicsEngine::Get()->GetRenderSystem()->CreateVertexShader(shader_byte_code, shader_byte_size);
+    vertex_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateVertexBuffer(vertex_list, sizeof(VERTEX), size_vertex_list, shader_byte_code, shader_byte_size);
+    GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
+
+    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/PixelShader.hlsl", "psmain", "ps_5_0", &shader_byte_code, &shader_byte_size);
+    pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
+    GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
 
     constant cc;
     cc.m_time = 0;
 
-    GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
+    constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
     
     new_delta = std::chrono::high_resolution_clock::now();
 }
@@ -161,19 +214,21 @@ void AppWindow::onUpdate() {
     // std::cout << 1.0 / delta_time << std::endl;
 
     cc.m_time = GetTickCount();
-    GraphicsEngine::Get()->GetRenderSystem()->UpdateConstantBuffer(&cc);
+    constant_buffer->Update(&cc);
     ///
 
-    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(vs);
-    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(ps);
+    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(vertex_shader, constant_buffer);
+    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(pixel_shader, constant_buffer);
 
-    GraphicsEngine::Get()->GetRenderSystem()->SetVertexShader(vs);
-    GraphicsEngine::Get()->GetRenderSystem()->SetPixelShader(ps);
+    GraphicsEngine::Get()->GetRenderSystem()->SetVertexShader(vertex_shader);
+    GraphicsEngine::Get()->GetRenderSystem()->SetPixelShader(pixel_shader);
+    
+    GraphicsEngine::Get()->GetRenderSystem()->SetTexture(pixel_shader, wood_tex);
 
-    GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer();
-    GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer();
+    GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer(vertex_buffer);
+    GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer(index_buffer);
 
-    GraphicsEngine::Get()->GetRenderSystem()->DrawIndexedTriangleList();
+    GraphicsEngine::Get()->GetRenderSystem()->DrawIndexedTriangleList(index_buffer->GetIndexListSize(), 0, 0);
 
     GraphicsEngine::Get()->GetRenderSystem()->Present(true);
 
@@ -185,9 +240,6 @@ void AppWindow::onUpdate() {
 
 void AppWindow::onDestroy() {
     Window::onDestroy();
-
-    ps->Release();
-    vs->Release();
 }
 
 void AppWindow::onFocus() {

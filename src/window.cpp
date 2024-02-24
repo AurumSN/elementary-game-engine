@@ -1,7 +1,6 @@
 #include "graphics/window.h"
 
 #include <stdexcept>
-#include <iostream>
 
 LRESULT CALLBACK WindowProc(
     HWND hWnd,
@@ -100,10 +99,10 @@ Window::~Window() {
 
 int Window::MessageLoop() {
 
-    if (!this->bIsInit) {
+    if (!this->bInit) {
         SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)this);
         this->onCreate();
-        this->bIsInit = true;
+        this->bInit = true;
     }
     this->onUpdate();
 
@@ -127,7 +126,7 @@ int Window::MessageLoop() {
 bool Window::isRunning() {
     if (bRunning)
         MessageLoop();
-        
+
     return bRunning;
 }
 

@@ -20,6 +20,7 @@ vec2::vec2(const vec2 &vec) : vec2(vec.x, vec.y) {}
 vec2::vec2(const vec3 &vec) : vec2(vec.x, vec.y) {}
 vec2::vec2(const vec4 &vec) : vec2(vec.x, vec.y) {}
 vec2::vec2(const float a[2]) : vec2(a[0], a[1]) {}
+vec2::~vec2() {}
 
 float vec2::getMagnitude() const {
     return std::sqrt(x * x + y * y);

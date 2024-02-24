@@ -159,6 +159,7 @@ mat4x4::mat4x4(const mat4x4 &mat) : mat4x4(mat.mat) {}
 mat4x4::mat4x4(const float mat[4][4]) {
     std::memcpy(this->mat, mat, sizeof(float) * 4 * 4);
 }
+mat4x4::~mat4x4() {}
 
 float mat4x4::getDeterminant() const {
     return mat[0][0] * mat[1][1] * mat[2][2] * mat[3][3] -

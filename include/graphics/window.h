@@ -3,7 +3,11 @@
 #include <windows.h>
 #include <d3d11.h>
 #include <chrono>
+#include <memory>
 #include "input/input_system.h"
+#include "data/textures.h"
+#include "graphics/components/buffers.h"
+#include "graphics/components/shaders.h"
 
 LRESULT CALLBACK WindowProc(
     HWND hWnd,
@@ -41,8 +45,8 @@ public:
 protected:
     HWND hWnd;
     bool bRunning;
-    bool bIsInit = false;
-    
+    bool bInit = false;
+
     int MessageLoop();
 };
 
@@ -57,6 +61,7 @@ public:
         int height
     );
     AppWindow(const AppWindow &) = delete;
+    ~AppWindow();
 
     virtual void onCreate() override;
     virtual void onUpdate() override;
@@ -72,8 +77,16 @@ public:
     virtual void onRightMouseDown(const vec2 &mouse_pos);
     virtual void onRightMouseUp(const vec2 &mouse_pos);
 private:
-    ID3D11VertexShader *vs;
-    ID3D11PixelShader *ps;
+    std::shared_ptr<VertexBuffer> vertex_buffer;
+    std::shared_ptr<IndexBuffer> index_buffer;
+    std::shared_ptr<ConstantBuffer> constant_buffer;
+    std::shared_ptr<VertexShader> vertex_shader;
+    std::shared_ptr<PixelShader> pixel_shader;
+
+    std::shared_ptr<Texture> wood_tex;
+
+
+
     
     std::chrono::high_resolution_clock::time_point old_delta;
     std::chrono::high_resolution_clock::time_point new_delta;
