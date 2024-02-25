@@ -54,12 +54,13 @@ void AppWindow::onCreate() {
 
     RECT rc = getClientWindowRect();
 
-    GraphicsEngine::Get()->GetRenderSystem()->CreateDeviceAndSwapChain(hWnd, rc.right - rc.left, rc.bottom - rc.top);
+    GraphicsEngine::Get()->GetRenderSystem()->CreateSwapChain(hWnd, rc.right - rc.left, rc.bottom - rc.top);
 
     InputSystem::Get()->AddListener(this);
     InputSystem::Get()->ShowCursor(!hideMouse);
 
-    wood_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\wood.jpg");
+    tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\brick.png");
+    mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\teapot.obj");
 
     if (hideMouse) {
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
@@ -223,12 +224,12 @@ void AppWindow::onUpdate() {
     GraphicsEngine::Get()->GetRenderSystem()->SetVertexShader(vertex_shader);
     GraphicsEngine::Get()->GetRenderSystem()->SetPixelShader(pixel_shader);
     
-    GraphicsEngine::Get()->GetRenderSystem()->SetTexture(pixel_shader, wood_tex);
+    GraphicsEngine::Get()->GetRenderSystem()->SetTexture(pixel_shader, tex);
 
-    GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer(vertex_buffer);
-    GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer(index_buffer);
+    GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer(mesh->GetVertexBuffer());
+    GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer(mesh->GetIndexBuffer());
 
-    GraphicsEngine::Get()->GetRenderSystem()->DrawIndexedTriangleList(index_buffer->GetIndexListSize(), 0, 0);
+    GraphicsEngine::Get()->GetRenderSystem()->DrawIndexedTriangleList(mesh->GetIndexBuffer()->GetIndexListSize(), 0, 0);
 
     GraphicsEngine::Get()->GetRenderSystem()->Present(true);
 

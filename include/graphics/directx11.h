@@ -2,7 +2,6 @@
 
 #include <d3d11.h>
 #include <memory>
-#include "data/textures.h"
 
 class VertexBuffer;
 class IndexBuffer;
@@ -10,6 +9,8 @@ class ConstantBuffer;
 class VertexShader;
 class PixelShader;
 class Texture;
+class TextureManager;
+class MeshManager;
 
 class RenderSystem {
 public:
@@ -17,7 +18,7 @@ public:
     RenderSystem(const RenderSystem &) = delete;
     ~RenderSystem();
 
-    void CreateDeviceAndSwapChain(HWND hWnd, UINT width, UINT height);
+    void CreateSwapChain(HWND hWnd, UINT width, UINT height);
     std::shared_ptr<VertexBuffer> CreateVertexBuffer(const void *vertex_list, UINT vertex_size, UINT list_size, const void *shader_byte_code, size_t shader_byte_size);
     std::shared_ptr<IndexBuffer> CreateIndexBuffer(const void *index_list, UINT list_size);
     std::shared_ptr<ConstantBuffer> CreateConstantBuffer(const void *buffer, UINT buffer_size);
@@ -51,9 +52,13 @@ private:
     ID3DBlob *blob = nullptr;
     IDXGISwapChain *swapchain = nullptr;
     ID3D11Device *dev = nullptr;
-    D3D_FEATURE_LEVEL featureLevel;
+    IDXGIDevice *dxgi_device = nullptr;
+    IDXGIAdapter *dxgi_adapter = nullptr;
+    IDXGIFactory *dxgi_factory = nullptr;
+    D3D_FEATURE_LEVEL feature_level;
     ID3D11DeviceContext *devcon = nullptr;
     ID3D11RenderTargetView *backbuffer = nullptr;
+    ID3D11DepthStencilView *depth_stencil_view = nullptr;
 
     friend class VertexBuffer;
     friend class IndexBuffer;
@@ -73,12 +78,18 @@ public:
 
     RenderSystem *GetRenderSystem();
     TextureManager *GetTexManager();
+    MeshManager *GetMeshManager();
 
+    void GetVertexMeshLayoutShader(void **shader_byte_code, size_t *shader_byte_size);
 private:
     static GraphicsEngine *engine;
 
     RenderSystem *render_system = nullptr;
     TextureManager *tex_manager = nullptr;
+    MeshManager *mesh_manager = nullptr;
+
+    unsigned char vertex_mesh_layout_shader_byte_code[1024];
+    size_t vertex_mesh_layout_shader_byte_size = 0;
 
     GraphicsEngine();
     ~GraphicsEngine();

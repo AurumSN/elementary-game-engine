@@ -6,6 +6,7 @@
 #include <memory>
 #include "input/input_system.h"
 #include "data/textures.h"
+#include "data/meshes.h"
 #include "graphics/components/buffers.h"
 #include "graphics/components/shaders.h"
 
@@ -83,7 +84,8 @@ private:
     std::shared_ptr<VertexShader> vertex_shader;
     std::shared_ptr<PixelShader> pixel_shader;
 
-    std::shared_ptr<Texture> wood_tex;
+    std::shared_ptr<Texture> tex;
+    std::shared_ptr<Mesh> mesh;
 
 
 

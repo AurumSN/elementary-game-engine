@@ -265,3 +265,7 @@ struct VERTEX {
     vec3 position;
     vec2 texcoord;
 };
+
+// struct VERTEX_MESH {
+
+// }

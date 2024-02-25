@@ -2,7 +2,6 @@
 
 #include <C:/msys64/mingw64/include/DirectXTex.h>
 #include <stdexcept>
-#include "graphics/directx11.h"
 
 Texture::Texture(const wchar_t *full_path) : Resource(full_path) {
     DirectX::ScratchImage image_data;

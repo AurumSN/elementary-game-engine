@@ -2,8 +2,9 @@
 
 #include <string>
 #include <d3d11.h>
-#include "resources.h"
 #include <memory>
+#include "data/resources.h"
+#include "graphics/directx11.h"
 
 class Texture : public Resource {
 public:
