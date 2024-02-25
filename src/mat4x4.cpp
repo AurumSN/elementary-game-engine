@@ -76,7 +76,7 @@ mat4x4 mat4x4::rotationZ(float angle) {
 }
 
 mat4x4 mat4x4::rotation(float x, float y, float z) {
-    return rotationZ(z) * rotationY(y) * rotationX(x);
+    return rotationX(x) * rotationY(y) * rotationZ(z);
 }
 mat4x4 mat4x4::perspectiveFovLH(float fov, float aspect, float znear, float zfar) {
     mat4x4 retval = identity;

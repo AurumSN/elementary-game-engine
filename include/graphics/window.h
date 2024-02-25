@@ -99,6 +99,7 @@ private:
 
     float rot_x = 0.0f;
     float rot_y = 0.0f;
+    float light_rot_y = 0.0f;
 
     float scale_cube = 1;
     float forward = 0.0f;

@@ -1,13 +1,15 @@
 struct VS_INPUT 
 {
-    float4 position : POSITION0;
+    float4 position : POSITION;
     float2 texcoord : TEXCOORD0;
+    float3 normal : NORMAL;
 };
 
 struct VS_OUTPUT 
 {
     float4 position : SV_POSITION;
     float2 texcoord : TEXCOORD0;
+    float3 normal : TEXCOORD1;
 };
 
 VS_OUTPUT vsmain(VS_INPUT input)

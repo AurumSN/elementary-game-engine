@@ -13,10 +13,11 @@
 #endif
 
 struct ALIGN(16) constant {
-    mat4x4 m_world;
-    mat4x4 m_view;
-    mat4x4 m_proj;
-    unsigned int m_time;
+    mat4x4 world;
+    mat4x4 view;
+    mat4x4 proj;
+    vec4 light_direction;
+    vec4 camera_position;
 };
 
 // AppWindow::AppWindow(
@@ -60,7 +61,7 @@ void AppWindow::onCreate() {
     InputSystem::Get()->ShowCursor(!hideMouse);
 
     tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\brick.png");
-    mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\teapot.obj");
+    mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\statue.obj");
 
     if (hideMouse) {
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
@@ -163,7 +164,6 @@ void AppWindow::onCreate() {
     GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
 
     constant cc;
-    cc.m_time = 0;
 
     constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
     
@@ -195,26 +195,29 @@ void AppWindow::onUpdate() {
 
     vec3 new_pos = world_cam.getTranslation() + (world_cam.getXDirection() * rightward + world_cam.getYDirection() * upward + world_cam.getZDirection() * forward) * delta_time;
 
-    world_cam = mat4x4::rotationX(rot_x) * mat4x4::rotationY(rot_y) * mat4x4::translation(new_pos);
+    world_cam = mat4x4::rotation(rot_x, rot_y, 0.0f) * mat4x4::translation(new_pos);
+    mat4x4 light_rot_matrix = mat4x4::rotationY(light_rot_y);
+    light_rot_y += 0.707f * delta_time;
 
-    cc.m_world = mat4x4::identity;
-    cc.m_view = world_cam.getInverse();
+    cc.world = mat4x4::identity;
+    cc.view = world_cam.getInverse();
     // cc.m_proj = mat4x4::orthoLH(
     //     (rc.right - rc.left) / 300.0f,
     //     (rc.bottom - rc.top) / 300.0f,
     //     -4.0f,
     //     4.0f
     // );
-    cc.m_proj = mat4x4::perspectiveFovLH(
+    cc.proj = mat4x4::perspectiveFovLH(
         1.57f,
         (float)(rc.right - rc.left) / (float)(rc.bottom - rc.top),
         0.1f,
         100.0f
     );
+    cc.light_direction = vec4::point(light_rot_matrix.getZDirection());
+    cc.camera_position = vec4::point(new_pos);
     
     // std::cout << 1.0 / delta_time << std::endl;
 
-    cc.m_time = GetTickCount();
     constant_buffer->Update(&cc);
     ///
 

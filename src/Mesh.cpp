@@ -43,8 +43,12 @@ Mesh::Mesh(const wchar_t *full_path) : Resource(full_path) {
 
                 tinyobj::real_t tx = attribs.texcoords[index.texcoord_index * 2 + 0];
                 tinyobj::real_t ty = attribs.texcoords[index.texcoord_index * 2 + 1];
+
+                tinyobj::real_t nx = attribs.normals[index.normal_index * 3 + 0];
+                tinyobj::real_t ny = attribs.normals[index.normal_index * 3 + 1];
+                tinyobj::real_t nz = attribs.normals[index.normal_index * 3 + 2];
             
-                vertex_list.push_back({vec3(vx, vy, vz), vec2(tx, ty)});
+                vertex_list.push_back({vec3(vx, vy, vz), vec2(tx, ty), vec3(nx, ny, nz)});
                 index_list.push_back((unsigned int)index_offset + v);
             }
 

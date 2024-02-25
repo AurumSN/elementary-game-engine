@@ -264,6 +264,7 @@ typedef float cRGB[3];
 struct VERTEX {
     vec3 position;
     vec2 texcoord;
+    vec3 normal;
 };
 
 // struct VERTEX_MESH {
