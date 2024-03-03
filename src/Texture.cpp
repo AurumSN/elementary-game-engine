@@ -1,6 +1,6 @@
 #include "data/textures.h"
 
-#include <C:/msys64/mingw64/include/DirectXTex.h>
+#include <DirectXTex.h>
 #include <stdexcept>
 
 Texture::Texture(const wchar_t *full_path) : Resource(full_path) {
