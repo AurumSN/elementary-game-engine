@@ -27,7 +27,11 @@ public:
     std::shared_ptr<VertexShader> CreateVertexShader(const void *shader_byte_code, size_t shader_byte_size);
     std::shared_ptr<PixelShader> CreatePixelShader(const void *shader_byte_code, size_t shader_byte_size);
     void ReleaseCompiledShader();
+    
+    void SetRasterizerState(bool cull_front);
 
+    void SetFullScreen(bool fullscreen, UINT width, UINT height);
+    void Resize(UINT width, UINT height);
     void Present(bool vsync);
 
     void ClearRenderTargetColor(FLOAT red, FLOAT green, FLOAT blue, FLOAT alpha);
@@ -50,6 +54,10 @@ public:
     //bool InitDeviceAndSwapChain(HWND hWnd, UINT width, UINT height);
 private:
     ID3DBlob *blob = nullptr;
+    
+    ID3D11RasterizerState *cull_front_state = nullptr;
+    ID3D11RasterizerState *cull_back_state = nullptr;
+
     IDXGISwapChain *swapchain = nullptr;
     ID3D11Device *dev = nullptr;
     IDXGIDevice *dxgi_device = nullptr;
@@ -66,6 +74,9 @@ private:
     friend class VertexShader;
     friend class PixelShader;
     friend class Texture;
+
+    void InitRasterizerState();
+    void ReloadBuffers(UINT width, UINT height);
 };
 
 class GraphicsEngine {

@@ -13,6 +13,11 @@ LRESULT CALLBACK WindowProc(
     case WM_CREATE:
         
         break;
+    case WM_SIZE:
+        window = (Window *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+        if (window)
+            window->onSize();
+        break;
     case WM_SETFOCUS:
         window = (Window *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
         if (window)
@@ -145,6 +150,17 @@ RECT Window::getClientWindowRect() {
     return rc;
 }
 
+RECT Window::getScreenSize() {
+    RECT rc;
+    rc.right = GetSystemMetrics(SM_CXSCREEN);
+    rc.bottom = GetSystemMetrics(SM_CYSCREEN);
+    return rc;
+}
+
 HWND Window::getHWND() {
     return hWnd;
+}
+
+void Window::onSize() {
+    
 }

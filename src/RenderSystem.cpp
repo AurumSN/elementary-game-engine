@@ -25,7 +25,7 @@ RenderSystem::RenderSystem() {
 
 	for (UINT driver_type_index = 0; driver_type_index < num_driver_types;)
 	{
-		res = D3D11CreateDevice(NULL, driver_types[driver_type_index], nullptr, 0, feature_levels,
+		res = D3D11CreateDevice(nullptr, driver_types[driver_type_index], nullptr, 0, feature_levels,
 			num_feature_levels, D3D11_SDK_VERSION, &dev, &feature_level, &devcon);
 		if (SUCCEEDED(res))
 			break;
@@ -37,6 +37,8 @@ RenderSystem::RenderSystem() {
 	dev->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgi_device);
 	dxgi_device->GetParent(__uuidof(IDXGIAdapter), (void**)&dxgi_adapter);
 	dxgi_adapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgi_factory);
+
+    InitRasterizerState();
 }
 
 RenderSystem::~RenderSystem() {
@@ -65,6 +67,7 @@ void RenderSystem::CreateSwapChain(HWND hWnd, UINT width, UINT height) {
     desc.OutputWindow = hWnd;
     desc.SampleDesc.Count = 1;
     desc.SampleDesc.Quality = 0;
+    desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
     desc.Windowed = TRUE;
 
     HRESULT hr = dxgi_factory->CreateSwapChain(dev, &desc, &swapchain);
@@ -72,41 +75,7 @@ void RenderSystem::CreateSwapChain(HWND hWnd, UINT width, UINT height) {
     if (FAILED(hr))
         throw std::runtime_error("Swap Chain was not created successfully");
 
-    ID3D11Texture2D *buffer;
-    hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID *)&buffer);
-
-    if (FAILED(hr))
-        throw std::runtime_error("Swap Chain was not created successfully");
-
-    hr = dev->CreateRenderTargetView(buffer, nullptr, &backbuffer);
-    buffer->Release();
-
-    if (FAILED(hr))
-        throw std::runtime_error("Swap Chain was not created successfully");
-
-    D3D11_TEXTURE2D_DESC tex_desc = {};
-    tex_desc.Width = width;
-    tex_desc.Height = height;
-    tex_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    tex_desc.Usage = D3D11_USAGE_DEFAULT;
-    tex_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    tex_desc.MipLevels = 1;
-    tex_desc.SampleDesc.Count = 1;
-    tex_desc.SampleDesc.Quality = 0;
-    tex_desc.MiscFlags = 0;
-    tex_desc.ArraySize = 1;
-    tex_desc.CPUAccessFlags = 0;
-
-    hr = dev->CreateTexture2D(&tex_desc, nullptr, &buffer);
-    
-    if (FAILED(hr))
-        throw std::runtime_error("Swap Chain was not created successfully");
-
-    hr = dev->CreateDepthStencilView(buffer, nullptr, &depth_stencil_view);
-    buffer->Release();
-
-    if (FAILED(hr))
-        throw std::runtime_error("Swap Chain was not created successfully");
+    ReloadBuffers(width, height);
 }
 
 std::shared_ptr<VertexBuffer> RenderSystem::CreateVertexBuffer(const void *vertex_list, UINT vertex_size, UINT list_size, const void *shader_byte_code, size_t shader_byte_size) {
@@ -119,10 +88,6 @@ std::shared_ptr<IndexBuffer> RenderSystem::CreateIndexBuffer(const void *index_l
 
 std::shared_ptr<ConstantBuffer> RenderSystem::CreateConstantBuffer(const void *buffer, UINT buffer_size) {
     return std::make_shared<ConstantBuffer>(buffer, buffer_size, this);
-}
-
-void RenderSystem::Present(bool vsync) {
-    swapchain->Present(vsync, 0);
 }
 
 void RenderSystem::CompileShader(const wchar_t *file_name, const char *entry_point_name, const char *target_name, void** shader_byte_code, size_t* shader_byte_size) {
@@ -152,6 +117,33 @@ std::shared_ptr<PixelShader> RenderSystem::CreatePixelShader(const void *shader_
 void RenderSystem::ReleaseCompiledShader() {
     if (blob)
         blob->Release();
+}
+
+void RenderSystem::SetRasterizerState(bool cull_front) {
+    if (cull_front)
+        devcon->RSSetState(cull_front_state);
+    else
+        devcon->RSSetState(cull_back_state);
+}
+
+
+void RenderSystem::SetFullScreen(bool fullscreen, UINT width, UINT height) {
+    Resize(width, height);
+    swapchain->SetFullscreenState(fullscreen, nullptr);
+}
+
+void RenderSystem::Resize(UINT width, UINT height) {
+    if (backbuffer)
+        backbuffer->Release();
+    if (depth_stencil_view)
+        depth_stencil_view->Release();
+
+    swapchain->ResizeBuffers(1, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+    ReloadBuffers(width, height);
+}
+
+void RenderSystem::Present(bool vsync) {
+    swapchain->Present(vsync, 0);
 }
 
 void RenderSystem::ClearRenderTargetColor(FLOAT red, FLOAT green, FLOAT blue, FLOAT alpha) {
@@ -218,4 +210,58 @@ void RenderSystem::SetTexture(const std::shared_ptr<VertexShader> &vertex_shader
 
 void RenderSystem::SetTexture(const std::shared_ptr<PixelShader> &pixel_shader, const std::shared_ptr<Texture> &texture) {
     devcon->PSSetShaderResources(0, 1, &texture->shader_resource_view);
+}
+
+void RenderSystem::InitRasterizerState() {
+    D3D11_RASTERIZER_DESC desc = {};
+    desc.CullMode = D3D11_CULL_FRONT;
+    desc.DepthClipEnable = true;
+    desc.FillMode = D3D11_FILL_SOLID;
+
+    dev->CreateRasterizerState(&desc, &cull_front_state);
+
+    desc.CullMode = D3D11_CULL_BACK;
+
+    dev->CreateRasterizerState(&desc, &cull_back_state);
+}
+
+void RenderSystem::ReloadBuffers(UINT width, UINT height) {
+    if (width == 0 || height == 0)
+        return;
+
+    ID3D11Texture2D *buffer = nullptr;
+    HRESULT hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID *)&buffer);
+
+    if (FAILED(hr))
+        throw std::runtime_error("Swap Chain was not created successfully");
+
+    hr = dev->CreateRenderTargetView(buffer, nullptr, &backbuffer);
+    buffer->Release();
+
+    if (FAILED(hr))
+        throw std::runtime_error("Swap Chain was not created successfully");
+
+    D3D11_TEXTURE2D_DESC tex_desc = {};
+    tex_desc.Width = width;
+    tex_desc.Height = height;
+    tex_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    tex_desc.Usage = D3D11_USAGE_DEFAULT;
+    tex_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    tex_desc.MipLevels = 1;
+    tex_desc.SampleDesc.Count = 1;
+    tex_desc.SampleDesc.Quality = 0;
+    tex_desc.MiscFlags = 0;
+    tex_desc.ArraySize = 1;
+    tex_desc.CPUAccessFlags = 0;
+
+    hr = dev->CreateTexture2D(&tex_desc, nullptr, &buffer);
+    
+    if (FAILED(hr))
+        throw std::runtime_error("Swap Chain was not created successfully");
+
+    hr = dev->CreateDepthStencilView(buffer, nullptr, &depth_stencil_view);
+    buffer->Release();
+
+    if (FAILED(hr))
+        throw std::runtime_error("Swap Chain was not created successfully");
 }

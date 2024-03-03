@@ -3,7 +3,7 @@
 #include "elementary/math.h"
 #include "graphics/directx11.h"
 
-//#include <iostream>
+// #include <iostream>
 
 
 #ifdef __GNUC__
@@ -58,12 +58,19 @@ void AppWindow::onCreate() {
     GraphicsEngine::Get()->GetRenderSystem()->CreateSwapChain(hWnd, rc.right - rc.left, rc.bottom - rc.top);
 
     InputSystem::Get()->AddListener(this);
-    InputSystem::Get()->ShowCursor(!hideMouse);
+
+    play_state = true;
+    fullscreen_state = false;
+
+    InputSystem::Get()->ShowCursor(!play_state);
 
     tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\brick.png");
-    mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\statue.obj");
+    sky_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\sky.jpg");
+    
+    mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\suzanne.obj");
+    sky_mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\sphere.obj");
 
-    if (hideMouse) {
+    if (play_state) {
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
         InputSystem::Get()->SetCursorPosition(lastMousePos);
     }
@@ -73,7 +80,7 @@ void AppWindow::onCreate() {
         lastMousePos = vec2(current_mouse_pos.x, current_mouse_pos.y);
     }
 
-    world_cam = mat4x4::translation(vec3(0, 0, -2));
+    world_camera = mat4x4::translation(vec3(0, 0, -2));
 
     vec3 position_list[] = {
         {-0.5f, -0.5f, -0.5f},
@@ -163,9 +170,14 @@ void AppWindow::onCreate() {
     pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
     GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
 
+    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/SkyBoxShader.hlsl", "psmain", "ps_5_0", &shader_byte_code, &shader_byte_size);
+    sky_pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
+    GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
+
     constant cc;
 
     constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
+    sky_constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
     
     new_delta = std::chrono::high_resolution_clock::now();
 }
@@ -174,82 +186,20 @@ void AppWindow::onUpdate() {
     Window::onUpdate();
 
     InputSystem::Get()->Update();
-    
-    GraphicsEngine::Get()->GetRenderSystem()->ClearRenderTargetColor(0, 0.3f, 0.4f, 1);
 
-    RECT rc = getClientWindowRect();
-    GraphicsEngine::Get()->GetRenderSystem()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
-
-    ///
-    constant cc;
-
-    // delta_pos += delta_time / 10.0f;
-
-    // if (delta_pos > 1.0f)
-    //     delta_pos = 0.0f;
-
-    // delta_scale += delta_time * 2.0f;
-
-    // cc.m_world = mat4x4::scale(vec3(scale_cube, scale_cube, scale_cube));
-    // cc.m_world *= mat4x4::rotation(rot_x, rot_y, 0);
-
-    vec3 new_pos = world_cam.getTranslation() + (world_cam.getXDirection() * rightward + world_cam.getYDirection() * upward + world_cam.getZDirection() * forward) * delta_time;
-
-    world_cam = mat4x4::rotation(rot_x, rot_y, 0.0f) * mat4x4::translation(new_pos);
-    mat4x4 light_rot_matrix = mat4x4::rotationY(light_rot_y);
-    light_rot_y += 0.707f * delta_time;
-
-    cc.world = mat4x4::identity;
-    cc.view = world_cam.getInverse();
-    // cc.m_proj = mat4x4::orthoLH(
-    //     (rc.right - rc.left) / 300.0f,
-    //     (rc.bottom - rc.top) / 300.0f,
-    //     -4.0f,
-    //     4.0f
-    // );
-    cc.proj = mat4x4::perspectiveFovLH(
-        1.57f,
-        (float)(rc.right - rc.left) / (float)(rc.bottom - rc.top),
-        0.1f,
-        100.0f
-    );
-    cc.light_direction = vec4::point(light_rot_matrix.getZDirection());
-    cc.camera_position = vec4::point(new_pos);
-    
-    // std::cout << 1.0 / delta_time << std::endl;
-
-    constant_buffer->Update(&cc);
-    ///
-
-    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(vertex_shader, constant_buffer);
-    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(pixel_shader, constant_buffer);
-
-    GraphicsEngine::Get()->GetRenderSystem()->SetVertexShader(vertex_shader);
-    GraphicsEngine::Get()->GetRenderSystem()->SetPixelShader(pixel_shader);
-    
-    GraphicsEngine::Get()->GetRenderSystem()->SetTexture(pixel_shader, tex);
-
-    GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer(mesh->GetVertexBuffer());
-    GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer(mesh->GetIndexBuffer());
-
-    GraphicsEngine::Get()->GetRenderSystem()->DrawIndexedTriangleList(mesh->GetIndexBuffer()->GetIndexListSize(), 0, 0);
-
-    GraphicsEngine::Get()->GetRenderSystem()->Present(true);
-
-    old_delta = new_delta;
-    new_delta = std::chrono::high_resolution_clock::now();
-
-    delta_time = std::chrono::duration_cast<std::chrono::microseconds>(new_delta - old_delta).count() * 0.000001f;
+    this->Render();
 }
 
 void AppWindow::onDestroy() {
     Window::onDestroy();
+
+    GraphicsEngine::Get()->GetRenderSystem()->SetFullScreen(false, 1, 1);
 }
 
 void AppWindow::onFocus() {
     Window::onFocus();
     InputSystem::Get()->AddListener(this);
-    if (hideMouse) {
+    if (play_state) {
         RECT rc = getClientWindowRect();
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
         InputSystem::Get()->SetCursorPosition(lastMousePos);
@@ -266,6 +216,14 @@ void AppWindow::onKillFocus() {
     InputSystem::Get()->RemoveListener(this);
 }
 
+void AppWindow::onSize() {
+    Window::onSize();
+    RECT rc = this->getClientWindowRect();
+    //GraphicsEngine::Get()->GetRenderSystem()->Resize(rc.right - rc.left, rc.bottom - rc.top);
+    GraphicsEngine::Get()->GetRenderSystem()->Resize(rc.right, rc.bottom);
+    this->Render();
+}
+
 void AppWindow::onKeyDown(int key) {
     if (key == 'W')
         forward = 1.0f;
@@ -279,25 +237,36 @@ void AppWindow::onKeyDown(int key) {
         upward = 1.0f;
     else if (key == VK_LCONTROL)
         upward = -1.0f;
-    else if (key == VK_ESCAPE && lastHideMouse == hideMouse) {
-        hideMouse = !hideMouse;
-        InputSystem::Get()->ShowCursor(!hideMouse);
-        if (hideMouse) {
-            RECT rc = getClientWindowRect();
-            lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
-            InputSystem::Get()->SetCursorPosition(lastMousePos);
-        }
-    }
 }
 
 void AppWindow::onKeyUp(int key) {
     forward = 0.0f;
     rightward = 0.0f;
     upward = 0.0f;
-    lastHideMouse = hideMouse;
+
+    if (key == 'G') {
+        play_state = !play_state;
+        std::cout << play_state << std::endl;
+        InputSystem::Get()->ShowCursor(!play_state);
+        if (play_state) {
+            RECT rc = getClientWindowRect();
+            lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
+            InputSystem::Get()->SetCursorPosition(lastMousePos);
+        }
+    }
+    else if (key == 'F') {
+        fullscreen_state = !fullscreen_state;
+
+        RECT size_screen = this->getScreenSize();
+
+        GraphicsEngine::Get()->GetRenderSystem()->SetFullScreen(fullscreen_state, size_screen.right, size_screen.bottom);
+    }
 }
 
 void AppWindow::onMouseMove(const vec2 &mouse_pos) {
+
+    if (!play_state)
+        return;
 
     rot_x += (mouse_pos.y - lastMousePos.y) * 0.005f;
     rot_y += (mouse_pos.x - lastMousePos.x) * 0.005f;
@@ -307,7 +276,7 @@ void AppWindow::onMouseMove(const vec2 &mouse_pos) {
     else if (rot_x < - 1.57f)
         rot_x = -1.57f;
 
-    if (hideMouse) {
+    if (play_state) {
         RECT rc = getClientWindowRect();
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
         InputSystem::Get()->SetCursorPosition(lastMousePos);
@@ -317,17 +286,115 @@ void AppWindow::onMouseMove(const vec2 &mouse_pos) {
 }
 
 void AppWindow::onLeftMouseDown(const vec2 &mouse_pos) {
-     scale_cube = 0.5f;
+    scale_cube = 0.5f;
 }
 
 void AppWindow::onLeftMouseUp(const vec2 &mouse_pos) {
-     scale_cube = 1.0f;
+    scale_cube = 1.0f;
 }
 
 void AppWindow::onRightMouseDown(const vec2 &mouse_pos) {
-     scale_cube = 2.0f;
+    scale_cube = 2.0f;
 }
 
 void AppWindow::onRightMouseUp(const vec2 &mouse_pos) {
-     scale_cube = 1.0f;
+    scale_cube = 1.0f;
+}
+
+void AppWindow::Render() {
+    GraphicsEngine::Get()->GetRenderSystem()->ClearRenderTargetColor(0, 0.3f, 0.4f, 1);
+
+    RECT rc = getClientWindowRect();
+    GraphicsEngine::Get()->GetRenderSystem()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
+
+    Update();
+
+    GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(false);
+    DrawMesh(mesh, vertex_shader, pixel_shader, constant_buffer, tex);
+
+    GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(true);
+    DrawMesh(sky_mesh, vertex_shader, sky_pixel_shader, sky_constant_buffer, sky_tex);
+
+    GraphicsEngine::Get()->GetRenderSystem()->Present(true);
+
+    old_delta = new_delta;
+    new_delta = std::chrono::high_resolution_clock::now();
+
+    delta_time = std::chrono::duration_cast<std::chrono::microseconds>(new_delta - old_delta).count() * 0.000001f;
+}
+
+void AppWindow::Update() {
+    UpdateCamera();
+    UpdateModel();
+    UpdateSkyBox();
+    light_rot_y += 0.707f * delta_time;
+}
+
+void AppWindow::UpdateCamera() {
+    RECT rc = getClientWindowRect();
+    mat4x4 world_cam = mat4x4::rotation(rot_x, rot_y, 0.0f);
+
+    vec3 new_pos = world_camera.getTranslation() + (world_cam.getXDirection() * rightward + world_cam.getYDirection() * upward + world_cam.getZDirection() * forward) * delta_time;
+
+    world_cam *= mat4x4::translation(new_pos);
+
+    world_camera = world_cam;
+    view_camera = world_cam.getInverse();
+    // proj_camera = mat4x4::orthoLH(
+    //     (rc.right - rc.left) / 300.0f,
+    //     (rc.bottom - rc.top) / 300.0f,
+    //     -4.0f,
+    //     4.0f
+    // );
+    proj_camera = mat4x4::perspectiveFovLH(
+        1.57f,
+        (float)(rc.right - rc.left) / (float)(rc.bottom - rc.top),
+        0.1f,
+        100.0f
+    );
+}
+
+void AppWindow::UpdateModel() {
+    constant cc;
+
+    cc.world = mat4x4::identity;
+    cc.view = view_camera;
+    cc.proj = proj_camera;
+    cc.camera_position = world_camera.getTranslation();
+    cc.light_direction = vec4::point(mat4x4::rotationY(light_rot_y).getZDirection());
+
+    constant_buffer->Update(&cc);
+}
+
+void AppWindow::UpdateSkyBox() {
+    constant cc;
+
+    cc.world = mat4x4::scale(vec3(100.0f, 100.0f, 100.0f)) * mat4x4::translation(world_camera.getTranslation());
+    cc.view = view_camera;
+    cc.proj = proj_camera;
+    cc.camera_position = world_camera.getTranslation();
+    cc.light_direction = vec4::point(mat4x4::rotationY(light_rot_y).getZDirection());
+
+    sky_constant_buffer->Update(&cc);
+}
+
+void AppWindow::DrawMesh(
+    const std::shared_ptr<Mesh> &mesh, 
+    const std::shared_ptr<VertexShader> &vertex_shader, 
+    const std::shared_ptr<PixelShader> &pixel_shader, 
+    const std::shared_ptr<ConstantBuffer> &constant_buffer,
+    const std::shared_ptr<Texture> &texture
+) {
+    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(vertex_shader, constant_buffer);
+    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(pixel_shader, constant_buffer);
+
+    GraphicsEngine::Get()->GetRenderSystem()->SetVertexShader(vertex_shader);
+    GraphicsEngine::Get()->GetRenderSystem()->SetPixelShader(pixel_shader);
+    
+    GraphicsEngine::Get()->GetRenderSystem()->SetTexture(pixel_shader, texture);
+
+    GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer(mesh->GetVertexBuffer());
+    GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer(mesh->GetIndexBuffer());
+
+    GraphicsEngine::Get()->GetRenderSystem()->DrawIndexedTriangleList(mesh->GetIndexBuffer()->GetIndexListSize(), 0, 0);
 }

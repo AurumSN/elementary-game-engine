@@ -37,8 +37,10 @@ public:
     virtual void onDestroy();
     virtual void onFocus();
     virtual void onKillFocus();
+    virtual void onSize();
 
     RECT getClientWindowRect();
+    RECT getScreenSize();
 
     HWND getHWND();
 
@@ -69,6 +71,7 @@ public:
     virtual void onDestroy() override;
     virtual void onFocus() override;
     virtual void onKillFocus() override;
+    virtual void onSize() override;
 
     virtual void onKeyDown(int key);
     virtual void onKeyUp(int key);
@@ -77,15 +80,35 @@ public:
     virtual void onLeftMouseUp(const vec2 &mouse_pos);
     virtual void onRightMouseDown(const vec2 &mouse_pos);
     virtual void onRightMouseUp(const vec2 &mouse_pos);
+
+    void Render();
+    void Update();
+    void UpdateCamera();
+    void UpdateModel();
+    void UpdateSkyBox();
+    void DrawMesh(
+        const std::shared_ptr<Mesh> &mesh, 
+        const std::shared_ptr<VertexShader> &vertex_shader, 
+        const std::shared_ptr<PixelShader> &pixel_shader, 
+        const std::shared_ptr<ConstantBuffer> &constant_buffer,
+        const std::shared_ptr<Texture> &texture
+    );
 private:
     std::shared_ptr<VertexBuffer> vertex_buffer;
     std::shared_ptr<IndexBuffer> index_buffer;
-    std::shared_ptr<ConstantBuffer> constant_buffer;
+
     std::shared_ptr<VertexShader> vertex_shader;
     std::shared_ptr<PixelShader> pixel_shader;
+    std::shared_ptr<ConstantBuffer> constant_buffer;
+
+    std::shared_ptr<PixelShader> sky_pixel_shader;
+    std::shared_ptr<ConstantBuffer> sky_constant_buffer;
 
     std::shared_ptr<Texture> tex;
+    std::shared_ptr<Texture> sky_tex;
+
     std::shared_ptr<Mesh> mesh;
+    std::shared_ptr<Mesh> sky_mesh;
 
 
 
@@ -106,9 +129,11 @@ private:
     float rightward = 0.0f;
     float upward = 0.0f;
 
-    bool hideMouse = true;
-    bool lastHideMouse = true;
+    bool play_state = false;
+    bool fullscreen_state = false;
     vec2 lastMousePos = vec2(0, 0);
 
-    mat4x4 world_cam;
+    mat4x4 world_camera;
+    mat4x4 view_camera;
+    mat4x4 proj_camera;
 };
