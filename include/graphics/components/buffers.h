@@ -43,7 +43,7 @@ public:
 	ConstantBuffer(const void *buffer, UINT buffer_size, RenderSystem *system);
 	~ConstantBuffer();
 
-	void Update(void *buffer);
+	void Update(const void *buffer);
 private:
 	ID3D11Buffer *buffer = nullptr;
 	RenderSystem *system = nullptr;

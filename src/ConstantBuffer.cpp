@@ -19,7 +19,7 @@ ConstantBuffer::ConstantBuffer(const void * buffer, UINT size_buffer,RenderSyste
 }
 
 
-void ConstantBuffer::Update(void * buffer)
+void ConstantBuffer::Update(const void *buffer)
 {
 	system->devcon->UpdateSubresource(this->buffer, 0, nullptr, buffer, 0, 0);
 }

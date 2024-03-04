@@ -204,12 +204,28 @@ void RenderSystem::SetConstantBuffer(const std::shared_ptr<PixelShader> &pixel_s
     devcon->PSSetConstantBuffers(0, 1, &buffer->buffer);
 }
 
-void RenderSystem::SetTexture(const std::shared_ptr<VertexShader> &vertex_shader, const std::shared_ptr<Texture> &texture) {
-    devcon->VSSetShaderResources(0, 1, &texture->shader_resource_view);
+void RenderSystem::SetTexture(const std::shared_ptr<VertexShader> &vertex_shader, const std::shared_ptr<Texture> *textures, UINT texture_count) {
+    ID3D11ShaderResourceView *list_res[32];
+    ID3D11SamplerState *list_sampler[32];
+    for (UINT i = 0; i < texture_count; i++) {
+        list_res[i] = textures[i]->shader_resource_view;
+        list_sampler[i] = textures[i]->sampler_state;
+    }
+
+    devcon->VSSetShaderResources(0, texture_count, list_res);
+    devcon->VSSetSamplers(0, texture_count, list_sampler);
 }
 
-void RenderSystem::SetTexture(const std::shared_ptr<PixelShader> &pixel_shader, const std::shared_ptr<Texture> &texture) {
-    devcon->PSSetShaderResources(0, 1, &texture->shader_resource_view);
+void RenderSystem::SetTexture(const std::shared_ptr<PixelShader> &pixel_shader, const std::shared_ptr<Texture> *textures, UINT texture_count) {
+    ID3D11ShaderResourceView *list_res[32];
+    ID3D11SamplerState *list_sampler[32];
+    for (UINT i = 0; i < texture_count; i++) {
+        list_res[i] = textures[i]->shader_resource_view;
+        list_sampler[i] = textures[i]->sampler_state;
+    }
+
+    devcon->PSSetShaderResources(0, texture_count, list_res);
+    devcon->PSSetSamplers(0, texture_count, list_sampler);
 }
 
 void RenderSystem::InitRasterizerState() {

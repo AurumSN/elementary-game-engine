@@ -13,6 +13,7 @@ public:
 private:
     ID3D11Resource *texture = nullptr;
     ID3D11ShaderResourceView *shader_resource_view = nullptr;
+    ID3D11SamplerState *sampler_state = nullptr;
 
     friend class RenderSystem;
 };

@@ -1,0 +1,24 @@
+.textures
+earth@color       assets/textures/earth_color.jpg
+earth@spec        assets/textures/earth_spec.jpg
+earth@night       assets/textures/earth_night.jpg
+clouds@tex        assets/textures/clouds.jpg
+stars_map@tex     assets/textures/stars_map.jpg
+
+.meshes
+earth@mesh        assets/meshes/sphere_hq.obj
+sky_box@mesh      assets/meshes/sphere.obj
+
+.shaders
+earth@ps          assets/shaders/PixelShader.hlsl
+default@vs        assets/shaders/VertexShader.hlsl
+skybox@ps         assets/shaders/SkyBoxShader.hlsl
+layout@vs         assets/shaders/VertexMeshLayoutShader.hlsl
+
+.materials
+earth@mat -ps earth@ps -vs default@vs
+skybox@mat -ps skybox@ps -vs default@vs
+
+.objects
+earth -m earth@mesh -ps earth@ps -vs default@vs -t earth@color earth@spec clouds@tex earth@night
+sky_box -sb -cf -m sky_box@mesh -ps skybox@ps -vs default@vs -t stars_map@tex

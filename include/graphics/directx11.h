@@ -9,8 +9,7 @@ class ConstantBuffer;
 class VertexShader;
 class PixelShader;
 class Texture;
-class TextureManager;
-class MeshManager;
+class ElementManager;
 
 class RenderSystem {
 public:
@@ -48,8 +47,8 @@ public:
     void SetConstantBuffer(const std::shared_ptr<VertexShader> &vertex_shader, const std::shared_ptr<ConstantBuffer> &buffer);
     void SetConstantBuffer(const std::shared_ptr<PixelShader> &pixel_shader, const std::shared_ptr<ConstantBuffer> &buffer);
 
-    void SetTexture(const std::shared_ptr<VertexShader> &vertex_shader, const std::shared_ptr<Texture> &texture);
-    void SetTexture(const std::shared_ptr<PixelShader> &pixel_shader, const std::shared_ptr<Texture> &texture);
+    void SetTexture(const std::shared_ptr<VertexShader> &vertex_shader, const std::shared_ptr<Texture> *textures, UINT texture_count);
+    void SetTexture(const std::shared_ptr<PixelShader> &pixel_shader, const std::shared_ptr<Texture> *textures, UINT texture_count);
     
     //bool InitDeviceAndSwapChain(HWND hWnd, UINT width, UINT height);
 private:
@@ -88,16 +87,14 @@ public:
     GraphicsEngine(const GraphicsEngine &) = delete;
 
     RenderSystem *GetRenderSystem();
-    TextureManager *GetTexManager();
-    MeshManager *GetMeshManager();
+    // TextureManager *GetTexManager();
+    // MeshManager *GetMeshManager();
 
     void GetVertexMeshLayoutShader(void **shader_byte_code, size_t *shader_byte_size);
 private:
     static GraphicsEngine *engine;
 
     RenderSystem *render_system = nullptr;
-    TextureManager *tex_manager = nullptr;
-    MeshManager *mesh_manager = nullptr;
 
     unsigned char vertex_mesh_layout_shader_byte_code[1024];
     size_t vertex_mesh_layout_shader_byte_size = 0;

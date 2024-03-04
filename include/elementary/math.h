@@ -267,6 +267,17 @@ struct VERTEX {
     vec3 normal;
 };
 
-// struct VERTEX_MESH {
+#ifdef __GNUC__
+#define ALIGN(x) __attribute__((aligned(x)))
+#else
+#define ALIGN(x) __declspec(align(x))
+#endif
 
-// }
+struct ALIGN(16) constant {
+    mat4x4 world;
+    mat4x4 view;
+    mat4x4 proj;
+    vec4 light_direction;
+    vec4 camera_position;
+    float time;
+};

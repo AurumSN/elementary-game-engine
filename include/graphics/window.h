@@ -5,10 +5,11 @@
 #include <chrono>
 #include <memory>
 #include "input/input_system.h"
-#include "data/textures.h"
-#include "data/meshes.h"
-#include "graphics/components/buffers.h"
-#include "graphics/components/shaders.h"
+// #include "data/textures.h"
+// #include "data/meshes.h"
+// #include "graphics/components/buffers.h"
+// #include "graphics/components/shaders.h"
+#include "data/elements.h"
 
 LRESULT CALLBACK WindowProc(
     HWND hWnd,
@@ -91,34 +92,27 @@ public:
         const std::shared_ptr<VertexShader> &vertex_shader, 
         const std::shared_ptr<PixelShader> &pixel_shader, 
         const std::shared_ptr<ConstantBuffer> &constant_buffer,
-        const std::shared_ptr<Texture> &texture
+        const std::shared_ptr<Texture> *textures, 
+        UINT texture_count
     );
 private:
-    std::shared_ptr<VertexBuffer> vertex_buffer;
-    std::shared_ptr<IndexBuffer> index_buffer;
+    // std::shared_ptr<VertexShader> vertex_shader;
+    // std::shared_ptr<PixelShader> pixel_shader;
+    // std::shared_ptr<ConstantBuffer> constant_buffer;
 
-    std::shared_ptr<VertexShader> vertex_shader;
-    std::shared_ptr<PixelShader> pixel_shader;
-    std::shared_ptr<ConstantBuffer> constant_buffer;
+    // std::shared_ptr<PixelShader> sky_pixel_shader;
+    // std::shared_ptr<ConstantBuffer> sky_constant_buffer;
 
-    std::shared_ptr<PixelShader> sky_pixel_shader;
-    std::shared_ptr<ConstantBuffer> sky_constant_buffer;
+    // std::shared_ptr<Texture> earth_color_tex;
+    // std::shared_ptr<Texture> earth_spec_tex;
+    // std::shared_ptr<Texture> earth_night_tex;
+    // std::shared_ptr<Texture> clouds_tex;
+    // std::shared_ptr<Texture> sky_tex;
 
-    std::shared_ptr<Texture> tex;
-    std::shared_ptr<Texture> sky_tex;
+    // std::shared_ptr<Mesh> mesh;
+    // std::shared_ptr<Mesh> sky_mesh;
 
-    std::shared_ptr<Mesh> mesh;
-    std::shared_ptr<Mesh> sky_mesh;
-
-
-
-    
-    std::chrono::high_resolution_clock::time_point old_delta;
-    std::chrono::high_resolution_clock::time_point new_delta;
-    float delta_time;
-
-    float delta_pos;
-    float delta_scale;
+    std::shared_ptr<ElementManager> resources;
 
     float rot_x = 0.0f;
     float rot_y = 0.0f;

@@ -1,24 +1,13 @@
 #include "graphics/window.h"
 
 #include "elementary/math.h"
+#include "elementary/time.h"
 #include "graphics/directx11.h"
 
 // #include <iostream>
 
 
-#ifdef __GNUC__
-#define ALIGN(x) __attribute__((aligned(x)))
-#else
-#define ALIGN(x) __declspec(align(x))
-#endif
 
-struct ALIGN(16) constant {
-    mat4x4 world;
-    mat4x4 view;
-    mat4x4 proj;
-    vec4 light_direction;
-    vec4 camera_position;
-};
 
 // AppWindow::AppWindow(
 //     HINSTANCE hInstance,
@@ -64,11 +53,16 @@ void AppWindow::onCreate() {
 
     InputSystem::Get()->ShowCursor(!play_state);
 
-    tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\brick.png");
-    sky_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\sky.jpg");
+    // earth_color_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\earth_color.jpg");
+    // earth_spec_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\earth_spec.jpg");
+    // earth_night_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\earth_night.jpg");
+    // clouds_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\clouds.jpg");
+    // sky_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\stars_map.jpg");
     
-    mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\suzanne.obj");
-    sky_mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\sphere.obj");
+    // mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\sphere_hq.obj");
+    // sky_mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\sphere.obj");
+
+    resources = std::make_shared<ElementManager>(L"assets/elements/resources.txt");
 
     if (play_state) {
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
@@ -82,104 +76,27 @@ void AppWindow::onCreate() {
 
     world_camera = mat4x4::translation(vec3(0, 0, -2));
 
-    vec3 position_list[] = {
-        {-0.5f, -0.5f, -0.5f},
-        {-0.5f,  0.5f, -0.5f},
-        { 0.5f,  0.5f, -0.5f},
-        { 0.5f, -0.5f, -0.5f},
-        { 0.5f, -0.5f,  0.5f},
-        { 0.5f,  0.5f,  0.5f},
-        {-0.5f,  0.5f,  0.5f},
-        {-0.5f, -0.5f,  0.5f}
-    };
+    // void *shader_byte_code = nullptr;
+    // size_t shader_byte_size = 0;
 
-    vec3 texcoord_list[] = {
-        {0.0f, 0.0f},
-        {0.0f, 1.0f},
-        {1.0f, 0.0f},
-        {1.0f, 1.0f}
-    };
+    // GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"assets/shaders/VertexShader.hlsl", "vsmain", "vs_5_0", &shader_byte_code, &shader_byte_size);
+    // vertex_shader = GraphicsEngine::Get()->GetRenderSystem()->CreateVertexShader(shader_byte_code, shader_byte_size);
+    // GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
 
-    VERTEX vertex_list[] = {
-        {position_list[0], texcoord_list[1]},
-        {position_list[1], texcoord_list[0]},
-        {position_list[2], texcoord_list[2]},
-        {position_list[3], texcoord_list[3]},
+    // GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"assets/shaders/PixelShader.hlsl", "psmain", "ps_5_0", &shader_byte_code, &shader_byte_size);
+    // pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
+    // GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
 
-        {position_list[4], texcoord_list[1]},
-        {position_list[5], texcoord_list[0]},
-        {position_list[6], texcoord_list[2]},
-        {position_list[7], texcoord_list[3]},
+    // GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"assets/shaders/SkyBoxShader.hlsl", "psmain", "ps_5_0", &shader_byte_code, &shader_byte_size);
+    // sky_pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
+    // GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
 
-        {position_list[1], texcoord_list[1]},
-        {position_list[6], texcoord_list[0]},
-        {position_list[5], texcoord_list[2]},
-        {position_list[2], texcoord_list[3]},
+    // constant cc;
 
-        {position_list[7], texcoord_list[1]},
-        {position_list[0], texcoord_list[0]},
-        {position_list[3], texcoord_list[2]},
-        {position_list[4], texcoord_list[3]},
-
-        {position_list[3], texcoord_list[1]},
-        {position_list[2], texcoord_list[0]},
-        {position_list[5], texcoord_list[2]},
-        {position_list[4], texcoord_list[3]},
-
-        {position_list[7], texcoord_list[1]},
-        {position_list[6], texcoord_list[0]},
-        {position_list[1], texcoord_list[2]},
-        {position_list[0], texcoord_list[3]}
-    };
+    // constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
+    // sky_constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
     
-    UINT size_vertex_list = ARRAYSIZE(vertex_list);
-
-    UINT index_list[] = {
-         0,  1,  2, 
-         2,  3,  0,
-
-         4,  5,  6,
-         6,  7,  4,
-
-         8,  9, 10,
-        10, 11,  8,
-
-        12, 13, 14,
-        14, 15, 12,
-
-        16, 17, 18,
-        18, 19, 16,
-
-        20, 21, 22,
-        22, 23, 20
-    };
-
-    UINT size_index_list = ARRAYSIZE(index_list);
-
-    index_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateIndexBuffer(index_list, size_index_list);
-
-    void *shader_byte_code = nullptr;
-    size_t shader_byte_size = 0;
-
-    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/VertexShader.hlsl", "vsmain", "vs_5_0", &shader_byte_code, &shader_byte_size);
-    vertex_shader = GraphicsEngine::Get()->GetRenderSystem()->CreateVertexShader(shader_byte_code, shader_byte_size);
-    vertex_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateVertexBuffer(vertex_list, sizeof(VERTEX), size_vertex_list, shader_byte_code, shader_byte_size);
-    GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
-
-    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/PixelShader.hlsl", "psmain", "ps_5_0", &shader_byte_code, &shader_byte_size);
-    pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
-    GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
-
-    GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"shaders/SkyBoxShader.hlsl", "psmain", "ps_5_0", &shader_byte_code, &shader_byte_size);
-    sky_pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
-    GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
-
-    constant cc;
-
-    constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
-    sky_constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
-    
-    new_delta = std::chrono::high_resolution_clock::now();
+    Time::_InitTime();
 }
 
 void AppWindow::onUpdate() {
@@ -309,32 +226,33 @@ void AppWindow::Render() {
 
     Update();
 
-    GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(false);
-    DrawMesh(mesh, vertex_shader, pixel_shader, constant_buffer, tex);
+    // GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(false);
+    // std::shared_ptr<Texture> list_tex[4] = { earth_color_tex, earth_spec_tex, clouds_tex, earth_night_tex };
+    // DrawMesh(mesh, vertex_shader, pixel_shader, constant_buffer, list_tex, 4);
 
-    GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(true);
-    DrawMesh(sky_mesh, vertex_shader, sky_pixel_shader, sky_constant_buffer, sky_tex);
+    // GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(true);
+    // list_tex[0] = sky_tex;
+    // DrawMesh(sky_mesh, vertex_shader, sky_pixel_shader, sky_constant_buffer, list_tex, 1);
+
+    resources->Draw(ELEMENTS_FLAGS_ALL);
 
     GraphicsEngine::Get()->GetRenderSystem()->Present(true);
 
-    old_delta = new_delta;
-    new_delta = std::chrono::high_resolution_clock::now();
-
-    delta_time = std::chrono::duration_cast<std::chrono::microseconds>(new_delta - old_delta).count() * 0.000001f;
+    Time::_UpdateTime();
 }
 
 void AppWindow::Update() {
     UpdateCamera();
     UpdateModel();
     UpdateSkyBox();
-    light_rot_y += 0.707f * delta_time;
+    light_rot_y += 0.707f * Time::GetDeltaTime();
 }
 
 void AppWindow::UpdateCamera() {
     RECT rc = getClientWindowRect();
     mat4x4 world_cam = mat4x4::rotation(rot_x, rot_y, 0.0f);
 
-    vec3 new_pos = world_camera.getTranslation() + (world_cam.getXDirection() * rightward + world_cam.getYDirection() * upward + world_cam.getZDirection() * forward) * delta_time;
+    vec3 new_pos = world_camera.getTranslation() + (world_cam.getXDirection() * rightward + world_cam.getYDirection() * upward + world_cam.getZDirection() * forward) * Time::GetDeltaTime();
 
     world_cam *= mat4x4::translation(new_pos);
 
@@ -362,8 +280,10 @@ void AppWindow::UpdateModel() {
     cc.proj = proj_camera;
     cc.camera_position = world_camera.getTranslation();
     cc.light_direction = vec4::point(mat4x4::rotationY(light_rot_y).getZDirection());
+    cc.time = Time::GetTime();
 
-    constant_buffer->Update(&cc);
+    // constant_buffer->Update(&cc);
+    resources->UpdateConstantBuffer(&cc, ELEMENTS_FLAGS_ALL & ~ELEMENTS_FLAGS_SKYBOX);
 }
 
 void AppWindow::UpdateSkyBox() {
@@ -374,8 +294,10 @@ void AppWindow::UpdateSkyBox() {
     cc.proj = proj_camera;
     cc.camera_position = world_camera.getTranslation();
     cc.light_direction = vec4::point(mat4x4::rotationY(light_rot_y).getZDirection());
+    cc.time = Time::GetTime();
 
-    sky_constant_buffer->Update(&cc);
+    // sky_constant_buffer->Update(&cc);
+    resources->UpdateConstantBuffer(&cc, ELEMENTS_FLAGS_ALL & ~ELEMENTS_FLAGS_NOT_SKYBOX);
 }
 
 void AppWindow::DrawMesh(
@@ -383,15 +305,17 @@ void AppWindow::DrawMesh(
     const std::shared_ptr<VertexShader> &vertex_shader, 
     const std::shared_ptr<PixelShader> &pixel_shader, 
     const std::shared_ptr<ConstantBuffer> &constant_buffer,
-    const std::shared_ptr<Texture> &texture
+    const std::shared_ptr<Texture> *textures, 
+    UINT texture_count
 ) {
+    
     GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(vertex_shader, constant_buffer);
     GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(pixel_shader, constant_buffer);
 
     GraphicsEngine::Get()->GetRenderSystem()->SetVertexShader(vertex_shader);
     GraphicsEngine::Get()->GetRenderSystem()->SetPixelShader(pixel_shader);
     
-    GraphicsEngine::Get()->GetRenderSystem()->SetTexture(pixel_shader, texture);
+    GraphicsEngine::Get()->GetRenderSystem()->SetTexture(pixel_shader, textures, texture_count);
 
     GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer(mesh->GetVertexBuffer());
     GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer(mesh->GetIndexBuffer());
