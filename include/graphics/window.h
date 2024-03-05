@@ -112,8 +112,6 @@ private:
     // std::shared_ptr<Mesh> mesh;
     // std::shared_ptr<Mesh> sky_mesh;
 
-    std::shared_ptr<ElementManager> resources;
-
     float rot_x = 0.0f;
     float rot_y = 0.0f;
     float light_rot_y = 0.0f;

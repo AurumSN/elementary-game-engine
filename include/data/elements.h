@@ -14,57 +14,45 @@
 #define ELEMENTS_FLAGS_NOT_SKYBOX 0x2
 #define ELEMENTS_FLAGS_CULL_FRONT 0x4
 #define ELEMENTS_FLAGS_CULL_BACK 0x8
+#define ELEMENTS_FLAGS_DEFAULT 0xa
 #define ELEMENTS_FLAGS_ALL 0xf
 
-class AppWindow;
-class ElementManager;
-
-class Element {
+class Element : public Resource, public std::enable_shared_from_this<Element> {
 public:
-    Element(
-        UINT flags,
-        std::shared_ptr<Mesh> mesh, 
-        std::shared_ptr<PixelShader> pixel_shader,
-        std::shared_ptr<VertexShader> vertex_shader,
-        std::shared_ptr<Texture> *textures,
-        UINT texture_count
-    );
-    ~Element();
+    static void Load(const wchar_t *file_path);
+    static void Draw(UINT flags);
+    static void UpdateConstantBuffer(const constant *cc, UINT flags);
 
-    Element(const Element&) = delete;
+    Element(const wchar_t *full_path);
+    ~Element();
 
     void Draw();
     void UpdateConstantBuffer(const constant *cc);
 private:
-    UINT flags;
+    static std::unordered_map<std::wstring, std::shared_ptr<Texture>> global_textures;
+    static std::unordered_map<std::wstring, std::shared_ptr<Mesh>> global_meshes;
+    static std::unordered_map<std::wstring, std::shared_ptr<PixelShader>> global_pixel_shaders;
+    static std::unordered_map<std::wstring, std::shared_ptr<VertexShader>> global_vertex_shaders;
+    static std::unordered_map<std::wstring, std::shared_ptr<Element>> global_elements;
+
+    static std::shared_ptr<Element> *element_list;
+    static UINT element_count;
+
+    UINT flags = 0;
     std::shared_ptr<Mesh> mesh;
     std::shared_ptr<PixelShader> pixel_shader;
     std::shared_ptr<VertexShader> vertex_shader;
     std::shared_ptr<ConstantBuffer> constant_buffer;
     std::shared_ptr<Texture> *textures;
-    UINT texture_count;
-
-    friend AppWindow;
-    friend ElementManager;
+    UINT texture_count = 0;
 };
 
-class ElementManager {
+class ElementManager : public ResourceManager {
 public:
-    static void Create();
-    static void Release();
-
-    ElementManager(const wchar_t *file_path);
+    ElementManager();
     ~ElementManager();
 
-    void Draw(UINT flags);
-    void UpdateConstantBuffer(const constant *cc, UINT flags);
-private:
-    static TextureManager *tex_manager;
-    static MeshManager *mesh_manager;
-
-    std::unordered_map<std::wstring, std::shared_ptr<Texture>> textures;
-    std::unordered_map<std::wstring, std::shared_ptr<Mesh>> meshes;
-    std::unordered_map<std::wstring, std::wstring> shaders;
-    // std::unordered_map<std::wstring, std::shared_ptr<Material>> materials;
-    std::unordered_map<std::wstring, std::shared_ptr<Element>> elements;
+    std::shared_ptr<Element> CreateElementFromFile(const wchar_t *file_path);
+protected:
+    virtual Resource *CreateResourceFromFileConcrete(const wchar_t *file_path);
 };

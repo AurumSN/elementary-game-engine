@@ -9,6 +9,8 @@ class ConstantBuffer;
 class VertexShader;
 class PixelShader;
 class Texture;
+class TextureManager;
+class MeshManager;
 class ElementManager;
 
 class RenderSystem {
@@ -87,14 +89,18 @@ public:
     GraphicsEngine(const GraphicsEngine &) = delete;
 
     RenderSystem *GetRenderSystem();
-    // TextureManager *GetTexManager();
-    // MeshManager *GetMeshManager();
+    TextureManager *GetTexManager();
+    MeshManager *GetMeshManager();
+    ElementManager *GetElementManager();
 
     void GetVertexMeshLayoutShader(void **shader_byte_code, size_t *shader_byte_size);
 private:
     static GraphicsEngine *engine;
 
     RenderSystem *render_system = nullptr;
+    TextureManager *tex_manager = nullptr;
+    MeshManager *mesh_manager = nullptr;
+    ElementManager *element_manager = nullptr;
 
     unsigned char vertex_mesh_layout_shader_byte_code[1024];
     size_t vertex_mesh_layout_shader_byte_size = 0;

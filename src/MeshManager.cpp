@@ -1,7 +1,6 @@
 #include "data/meshes.h"
 
-MeshManager::MeshManager() {}
-
+MeshManager::MeshManager() : ResourceManager() {}
 MeshManager::~MeshManager() {}
 
 std::shared_ptr<Mesh> MeshManager::CreateMeshFromFile(const wchar_t *file_path) {

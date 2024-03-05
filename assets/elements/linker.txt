@@ -1,0 +1,5 @@
+global earth skybox
+load -e assets/elements/resources.txt
+load earth -e assets/elements/earth.txt
+.load suzanne -e assets/elements/suzanne.txt
+load skybox -e assets/elements/skybox.txt

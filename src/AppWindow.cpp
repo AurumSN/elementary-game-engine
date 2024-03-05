@@ -4,7 +4,7 @@
 #include "elementary/time.h"
 #include "graphics/directx11.h"
 
-// #include <iostream>
+#include <iostream>
 
 
 
@@ -62,7 +62,7 @@ void AppWindow::onCreate() {
     // mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\sphere_hq.obj");
     // sky_mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\sphere.obj");
 
-    resources = std::make_shared<ElementManager>(L"assets/elements/resources.txt");
+    Element::Load(L"assets/elements/linker.txt");
 
     if (play_state) {
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
@@ -225,6 +225,7 @@ void AppWindow::Render() {
     GraphicsEngine::Get()->GetRenderSystem()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
     Update();
+    std::cout << 1.0f / Time::GetDeltaTimeReal() << std::endl;
 
     // GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(false);
     // std::shared_ptr<Texture> list_tex[4] = { earth_color_tex, earth_spec_tex, clouds_tex, earth_night_tex };
@@ -234,9 +235,9 @@ void AppWindow::Render() {
     // list_tex[0] = sky_tex;
     // DrawMesh(sky_mesh, vertex_shader, sky_pixel_shader, sky_constant_buffer, list_tex, 1);
 
-    resources->Draw(ELEMENTS_FLAGS_ALL);
+    Element::Draw(ELEMENTS_FLAGS_ALL);
 
-    GraphicsEngine::Get()->GetRenderSystem()->Present(true);
+    GraphicsEngine::Get()->GetRenderSystem()->Present(false);
 
     Time::_UpdateTime();
 }
@@ -283,7 +284,7 @@ void AppWindow::UpdateModel() {
     cc.time = Time::GetTime();
 
     // constant_buffer->Update(&cc);
-    resources->UpdateConstantBuffer(&cc, ELEMENTS_FLAGS_ALL & ~ELEMENTS_FLAGS_SKYBOX);
+    Element::UpdateConstantBuffer(&cc, ELEMENTS_FLAGS_ALL & ~ELEMENTS_FLAGS_SKYBOX);
 }
 
 void AppWindow::UpdateSkyBox() {
@@ -297,7 +298,7 @@ void AppWindow::UpdateSkyBox() {
     cc.time = Time::GetTime();
 
     // sky_constant_buffer->Update(&cc);
-    resources->UpdateConstantBuffer(&cc, ELEMENTS_FLAGS_ALL & ~ELEMENTS_FLAGS_NOT_SKYBOX);
+    Element::UpdateConstantBuffer(&cc, ELEMENTS_FLAGS_ALL & ~ELEMENTS_FLAGS_NOT_SKYBOX);
 }
 
 void AppWindow::DrawMesh(

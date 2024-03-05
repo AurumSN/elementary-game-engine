@@ -1,24 +1,23 @@
 .textures
-earth@color       assets/textures/earth_color.jpg
-earth@spec        assets/textures/earth_spec.jpg
-earth@night       assets/textures/earth_night.jpg
-clouds@tex        assets/textures/clouds.jpg
-stars_map@tex     assets/textures/stars_map.jpg
+global earth@color earth@spec earth@night clouds@tex stars_map@tex
+load earth@color -t assets/textures/earth_color.jpg
+load earth@spec -t assets/textures/earth_spec.jpg
+load earth@night -t assets/textures/earth_night.jpg
+load clouds@tex -t assets/textures/clouds.jpg
+load stars_map@tex -t assets/textures/stars_map.jpg
 
 .meshes
-earth@mesh        assets/meshes/sphere_hq.obj
-sky_box@mesh      assets/meshes/sphere.obj
+global earth@mesh sky_box@mesh
+load earth@mesh -m assets/meshes/sphere_hq.obj
+load sky_box@mesh -m assets/meshes/sphere.obj
 
 .shaders
-earth@ps          assets/shaders/PixelShader.hlsl
-default@vs        assets/shaders/VertexShader.hlsl
-skybox@ps         assets/shaders/SkyBoxShader.hlsl
-layout@vs         assets/shaders/VertexMeshLayoutShader.hlsl
+global earth@ps default@vs skybox@ps layout@vs
+load earth@ps -ps assets/shaders/PixelShader.hlsl
+load default@vs -vs assets/shaders/VertexShader.hlsl
+load skybox@ps -ps assets/shaders/SkyBoxShader.hlsl
+load layout@vs -vs assets/shaders/VertexMeshLayoutShader.hlsl
 
-.materials
-earth@mat -ps earth@ps -vs default@vs
-skybox@mat -ps skybox@ps -vs default@vs
-
-.objects
-earth -m earth@mesh -ps earth@ps -vs default@vs -t earth@color earth@spec clouds@tex earth@night
-sky_box -sb -cf -m sky_box@mesh -ps skybox@ps -vs default@vs -t stars_map@tex
+global suzanne@mesh suzanne@ps
+load suzanne@mesh -m assets/meshes/suzanne.obj
+load suzanne@ps -ps assets/shaders/PixelShaderSuzanne.hlsl

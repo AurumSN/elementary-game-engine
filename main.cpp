@@ -22,13 +22,11 @@ int WINAPI WinMain(
     // );
     GraphicsEngine::Create();
     InputSystem::Create();
-    ElementManager::Create();
 
     AppWindow window(hInstance, hPrevInstance, lpCmdLine, nCmdShow, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     while (window.isRunning());
 
-    ElementManager::Release();
     GraphicsEngine::Release();
     InputSystem::Release();
 
