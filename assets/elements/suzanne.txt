@@ -1,3 +1,0 @@
-extern -t earth@color -m suzanne@mesh -ps suzanne@ps -vs default@vs
-
-mesh -m suzanne@mesh -ps suzanne@ps -vs default@vs -t earth@color
