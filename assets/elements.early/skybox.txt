@@ -1,5 +1,0 @@
-extern -t stars_map@tex -m sky_box@mesh -ps skybox@ps -vs default@vs
-
-.global skybox
-mesh -m sky_box@mesh -ps skybox@ps -vs default@vs -t stars_map@tex -sb -cf
-.set skybox -e this

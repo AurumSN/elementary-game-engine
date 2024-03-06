@@ -1,4 +1,0 @@
-.          position   rotation   scale
-transform -v3 0 0 -2 -v3 0 0 0 -v3 1 1 1
-camera
-camera_controller 1.0

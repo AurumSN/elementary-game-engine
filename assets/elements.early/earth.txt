@@ -1,5 +1,0 @@
-extern -t earth@color earth@spec earth@night clouds@tex -m earth@mesh -ps earth@ps -vs default@vs
-
-.global earth
-mesh -m earth@mesh -ps earth@ps -vs default@vs -t earth@color earth@spec clouds@tex earth@night
-.set earth -e this
