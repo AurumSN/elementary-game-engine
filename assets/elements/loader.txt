@@ -1,0 +1,6 @@
+global default earth skybox main_camera
+load default -vs assets/shaders/VertexShader.hlsl
+
+load earth -e assets/elements/earth.txt
+load skybox -e assets/elements/skybox.txt
+load main_camera -e assets/elements/main_camera.txt
