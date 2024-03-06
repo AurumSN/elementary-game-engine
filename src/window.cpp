@@ -2,6 +2,21 @@
 
 #include <stdexcept>
 
+HWND Window::hWnd;
+
+RECT Window::GetClientWindowRect() {
+    RECT rc;
+    GetClientRect(hWnd, &rc);
+    return rc;
+}
+
+RECT Window::GetScreenSize() {
+    RECT rc;
+    rc.right = GetSystemMetrics(SM_CXSCREEN);
+    rc.bottom = GetSystemMetrics(SM_CYSCREEN);
+    return rc;
+}
+
 LRESULT CALLBACK WindowProc(
     HWND hWnd,
     UINT Msg,
@@ -143,19 +158,6 @@ void Window::onDestroy() {
 }
 void Window::onFocus() {}
 void Window::onKillFocus() {}
-
-RECT Window::getClientWindowRect() {
-    RECT rc;
-    GetClientRect(hWnd, &rc);
-    return rc;
-}
-
-RECT Window::getScreenSize() {
-    RECT rc;
-    rc.right = GetSystemMetrics(SM_CXSCREEN);
-    rc.bottom = GetSystemMetrics(SM_CYSCREEN);
-    return rc;
-}
 
 HWND Window::getHWND() {
     return hWnd;

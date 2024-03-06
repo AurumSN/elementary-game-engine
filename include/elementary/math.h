@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-
 float Q_rsqrt(float number);
 
 struct vec2;
@@ -184,10 +183,16 @@ vec4 operator*(const float a, const vec4& b);
 std::ostream& operator<<(std::ostream &a, const vec2 &b);
 std::ostream& operator<<(std::ostream &a, const vec3 &b);
 std::ostream& operator<<(std::ostream &a, const vec4 &b);
+std::wostream& operator<<(std::wostream &a, const vec2 &b);
+std::wostream& operator<<(std::wostream &a, const vec3 &b);
+std::wostream& operator<<(std::wostream &a, const vec4 &b);
 
 std::istream& operator>>(std::istream &a, vec2 &b);
 std::istream& operator>>(std::istream &a, vec3 &b);
 std::istream& operator>>(std::istream &a, vec4 &b);
+std::wistream& operator>>(std::wistream &a, vec2 &b);
+std::wistream& operator>>(std::wistream &a, vec3 &b);
+std::wistream& operator>>(std::wistream &a, vec4 &b);
 
 struct mat4x4 {
     static const mat4x4 zero;

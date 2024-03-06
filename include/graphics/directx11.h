@@ -51,8 +51,6 @@ public:
 
     void SetTexture(const std::shared_ptr<VertexShader> &vertex_shader, const std::shared_ptr<Texture> *textures, UINT texture_count);
     void SetTexture(const std::shared_ptr<PixelShader> &pixel_shader, const std::shared_ptr<Texture> *textures, UINT texture_count);
-    
-    //bool InitDeviceAndSwapChain(HWND hWnd, UINT width, UINT height);
 private:
     ID3DBlob *blob = nullptr;
     

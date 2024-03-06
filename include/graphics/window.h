@@ -5,10 +5,6 @@
 #include <chrono>
 #include <memory>
 #include "input/input_system.h"
-// #include "data/textures.h"
-// #include "data/meshes.h"
-// #include "graphics/components/buffers.h"
-// #include "graphics/components/shaders.h"
 #include "data/elements.h"
 
 LRESULT CALLBACK WindowProc(
@@ -20,6 +16,9 @@ LRESULT CALLBACK WindowProc(
 
 class Window {
 public:
+    static RECT GetClientWindowRect();
+    static RECT GetScreenSize();
+
     Window(
         HINSTANCE hInstance,
         HINSTANCE hPrevInstance,
@@ -40,14 +39,11 @@ public:
     virtual void onKillFocus();
     virtual void onSize();
 
-    RECT getClientWindowRect();
-    RECT getScreenSize();
-
     HWND getHWND();
 
     Window &operator=(const Window &) = delete;
 protected:
-    HWND hWnd;
+    static HWND hWnd;
     bool bRunning;
     bool bInit = false;
 
@@ -56,6 +52,14 @@ protected:
 
 class AppWindow : public Window, public InputListener {
 public:
+    static float rot_x;
+    static float rot_y;
+    static float light_rot_y;
+
+    static float forward;
+    static float rightward;
+    static float upward;
+
     AppWindow(
         HINSTANCE hInstance,
         HINSTANCE hPrevInstance,
@@ -84,9 +88,6 @@ public:
 
     void Render();
     void Update();
-    void UpdateCamera();
-    void UpdateModel();
-    void UpdateSkyBox();
     void DrawMesh(
         const std::shared_ptr<Mesh> &mesh, 
         const std::shared_ptr<VertexShader> &vertex_shader, 
@@ -96,36 +97,7 @@ public:
         UINT texture_count
     );
 private:
-    // std::shared_ptr<VertexShader> vertex_shader;
-    // std::shared_ptr<PixelShader> pixel_shader;
-    // std::shared_ptr<ConstantBuffer> constant_buffer;
-
-    // std::shared_ptr<PixelShader> sky_pixel_shader;
-    // std::shared_ptr<ConstantBuffer> sky_constant_buffer;
-
-    // std::shared_ptr<Texture> earth_color_tex;
-    // std::shared_ptr<Texture> earth_spec_tex;
-    // std::shared_ptr<Texture> earth_night_tex;
-    // std::shared_ptr<Texture> clouds_tex;
-    // std::shared_ptr<Texture> sky_tex;
-
-    // std::shared_ptr<Mesh> mesh;
-    // std::shared_ptr<Mesh> sky_mesh;
-
-    float rot_x = 0.0f;
-    float rot_y = 0.0f;
-    float light_rot_y = 0.0f;
-
-    float scale_cube = 1;
-    float forward = 0.0f;
-    float rightward = 0.0f;
-    float upward = 0.0f;
-
     bool play_state = false;
     bool fullscreen_state = false;
     vec2 lastMousePos = vec2(0, 0);
-
-    mat4x4 world_camera;
-    mat4x4 view_camera;
-    mat4x4 proj_camera;
 };

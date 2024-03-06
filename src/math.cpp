@@ -43,6 +43,21 @@ std::ostream& operator<<(std::ostream& a, const vec4& b)
     a << "(" << b.x << ", " << b.y << ", " << b.z << ", " << b.w << ")";
     return a;
 }
+std::wostream& operator<<(std::wostream& a, const vec2& b)
+{
+    a << "(" << b.x << ", " << b.y << ")";
+    return a;
+}
+std::wostream& operator<<(std::wostream& a, const vec3& b)
+{
+    a << "(" << b.x << ", " << b.y << ", " << b.z << ")";
+    return a;
+}
+std::wostream& operator<<(std::wostream& a, const vec4& b)
+{
+    a << "(" << b.x << ", " << b.y << ", " << b.z << ", " << b.w << ")";
+    return a;
+}
 
 std::istream& operator>>(std::istream& a, vec2 &b)
 {
@@ -55,6 +70,21 @@ std::istream& operator>>(std::istream& a, vec3 &b)
     return a;
 }
 std::istream& operator>>(std::istream& a, vec4 &b)
+{
+    a >> b.x >> b.y >> b.z >> b.w;
+    return a;
+}
+std::wistream& operator>>(std::wistream& a, vec2 &b)
+{
+    a >> b.x >> b.y;
+    return a;
+}
+std::wistream& operator>>(std::wistream& a, vec3 &b)
+{
+    a >> b.x >> b.y >> b.z;
+    return a;
+}
+std::wistream& operator>>(std::wistream& a, vec4 &b)
 {
     a >> b.x >> b.y >> b.z >> b.w;
     return a;

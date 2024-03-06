@@ -1,0 +1,12 @@
+extern -vs default
+
+load tex -t assets/textures/stars_map.jpg
+
+load mesh -m assets/meshes/sphere.obj
+
+load ps -ps assets/shaders/SkyBoxShader.hlsl
+
+.          position  rotation      scale
+transform -v3 0 0 0 -v3 0 0 0 -v3 100 100 100
+skybox
+renderer -cf -m mesh -ps ps -vs default -t tex

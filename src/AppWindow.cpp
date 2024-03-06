@@ -6,20 +6,13 @@
 
 #include <iostream>
 
+float AppWindow::rot_x = 0.0f;
+float AppWindow::rot_y = 0.0f;
+float AppWindow::light_rot_y = 0.0f;
 
-
-
-// AppWindow::AppWindow(
-//     HINSTANCE hInstance,
-//     HINSTANCE hPrevInstance,
-//     LPSTR lpCmdLine,
-//     int nCmdShow
-// ) : Window(
-//     hInstance,
-//     hPrevInstance,
-//     lpCmdLine,
-//     nCmdShow
-// ) {}
+float AppWindow::forward = 0.0f;
+float AppWindow::rightward = 0.0f;
+float AppWindow::upward = 0.0f;
 
 AppWindow::AppWindow(
     HINSTANCE hInstance,
@@ -42,7 +35,7 @@ AppWindow::~AppWindow() {}
 void AppWindow::onCreate() {
     Window::onCreate();
 
-    RECT rc = getClientWindowRect();
+    RECT rc = GetClientWindowRect();
 
     GraphicsEngine::Get()->GetRenderSystem()->CreateSwapChain(hWnd, rc.right - rc.left, rc.bottom - rc.top);
 
@@ -53,16 +46,7 @@ void AppWindow::onCreate() {
 
     InputSystem::Get()->ShowCursor(!play_state);
 
-    // earth_color_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\earth_color.jpg");
-    // earth_spec_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\earth_spec.jpg");
-    // earth_night_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\earth_night.jpg");
-    // clouds_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\clouds.jpg");
-    // sky_tex = GraphicsEngine::Get()->GetTexManager()->CreateTextureFromFile(L"assets\\textures\\stars_map.jpg");
-    
-    // mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\sphere_hq.obj");
-    // sky_mesh = GraphicsEngine::Get()->GetMeshManager()->CreateMeshFromFile(L"assets\\meshes\\sphere.obj");
-
-    Element::Load(L"assets/elements/linker.txt");
+    Element::Load(L"assets/elements/loader.txt");
 
     if (play_state) {
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
@@ -74,28 +58,6 @@ void AppWindow::onCreate() {
         lastMousePos = vec2(current_mouse_pos.x, current_mouse_pos.y);
     }
 
-    world_camera = mat4x4::translation(vec3(0, 0, -2));
-
-    // void *shader_byte_code = nullptr;
-    // size_t shader_byte_size = 0;
-
-    // GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"assets/shaders/VertexShader.hlsl", "vsmain", "vs_5_0", &shader_byte_code, &shader_byte_size);
-    // vertex_shader = GraphicsEngine::Get()->GetRenderSystem()->CreateVertexShader(shader_byte_code, shader_byte_size);
-    // GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
-
-    // GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"assets/shaders/PixelShader.hlsl", "psmain", "ps_5_0", &shader_byte_code, &shader_byte_size);
-    // pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
-    // GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
-
-    // GraphicsEngine::Get()->GetRenderSystem()->CompileShader(L"assets/shaders/SkyBoxShader.hlsl", "psmain", "ps_5_0", &shader_byte_code, &shader_byte_size);
-    // sky_pixel_shader = GraphicsEngine::Get()->GetRenderSystem()->CreatePixelShader(shader_byte_code, shader_byte_size);
-    // GraphicsEngine::Get()->GetRenderSystem()->ReleaseCompiledShader();
-
-    // constant cc;
-
-    // constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
-    // sky_constant_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateConstantBuffer(&cc, sizeof(constant));
-    
     Time::_InitTime();
 }
 
@@ -117,7 +79,7 @@ void AppWindow::onFocus() {
     Window::onFocus();
     InputSystem::Get()->AddListener(this);
     if (play_state) {
-        RECT rc = getClientWindowRect();
+        RECT rc = GetClientWindowRect();
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
         InputSystem::Get()->SetCursorPosition(lastMousePos);
     }
@@ -135,8 +97,7 @@ void AppWindow::onKillFocus() {
 
 void AppWindow::onSize() {
     Window::onSize();
-    RECT rc = this->getClientWindowRect();
-    //GraphicsEngine::Get()->GetRenderSystem()->Resize(rc.right - rc.left, rc.bottom - rc.top);
+    RECT rc = GetClientWindowRect();
     GraphicsEngine::Get()->GetRenderSystem()->Resize(rc.right, rc.bottom);
     this->Render();
 }
@@ -166,7 +127,7 @@ void AppWindow::onKeyUp(int key) {
         std::cout << play_state << std::endl;
         InputSystem::Get()->ShowCursor(!play_state);
         if (play_state) {
-            RECT rc = getClientWindowRect();
+            RECT rc = GetClientWindowRect();
             lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
             InputSystem::Get()->SetCursorPosition(lastMousePos);
         }
@@ -174,7 +135,7 @@ void AppWindow::onKeyUp(int key) {
     else if (key == 'F') {
         fullscreen_state = !fullscreen_state;
 
-        RECT size_screen = this->getScreenSize();
+        RECT size_screen = GetScreenSize();
 
         GraphicsEngine::Get()->GetRenderSystem()->SetFullScreen(fullscreen_state, size_screen.right, size_screen.bottom);
     }
@@ -194,7 +155,7 @@ void AppWindow::onMouseMove(const vec2 &mouse_pos) {
         rot_x = -1.57f;
 
     if (play_state) {
-        RECT rc = getClientWindowRect();
+        RECT rc = GetClientWindowRect();
         lastMousePos = vec2((rc.right - rc.left) / 2.0f, (rc.bottom - rc.top) / 2.0f);
         InputSystem::Get()->SetCursorPosition(lastMousePos);
     }
@@ -203,39 +164,31 @@ void AppWindow::onMouseMove(const vec2 &mouse_pos) {
 }
 
 void AppWindow::onLeftMouseDown(const vec2 &mouse_pos) {
-    scale_cube = 0.5f;
+    // scale_cube = 0.5f;
 }
 
 void AppWindow::onLeftMouseUp(const vec2 &mouse_pos) {
-    scale_cube = 1.0f;
+    // scale_cube = 1.0f;
 }
 
 void AppWindow::onRightMouseDown(const vec2 &mouse_pos) {
-    scale_cube = 2.0f;
+    // scale_cube = 2.0f;
 }
 
 void AppWindow::onRightMouseUp(const vec2 &mouse_pos) {
-    scale_cube = 1.0f;
+    // scale_cube = 1.0f;
 }
 
 void AppWindow::Render() {
     GraphicsEngine::Get()->GetRenderSystem()->ClearRenderTargetColor(0, 0.3f, 0.4f, 1);
 
-    RECT rc = getClientWindowRect();
+    RECT rc = GetClientWindowRect();
     GraphicsEngine::Get()->GetRenderSystem()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
     Update();
-    std::cout << 1.0f / Time::GetDeltaTimeReal() << std::endl;
+    //std::cout << 1.0f / Time::GetDeltaTimeReal() << std::endl;
 
-    // GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(false);
-    // std::shared_ptr<Texture> list_tex[4] = { earth_color_tex, earth_spec_tex, clouds_tex, earth_night_tex };
-    // DrawMesh(mesh, vertex_shader, pixel_shader, constant_buffer, list_tex, 4);
-
-    // GraphicsEngine::Get()->GetRenderSystem()->SetRasterizerState(true);
-    // list_tex[0] = sky_tex;
-    // DrawMesh(sky_mesh, vertex_shader, sky_pixel_shader, sky_constant_buffer, list_tex, 1);
-
-    Element::Draw(ELEMENTS_FLAGS_ALL);
+    Element::UpdateElements();
 
     GraphicsEngine::Get()->GetRenderSystem()->Present(false);
 
@@ -243,83 +196,5 @@ void AppWindow::Render() {
 }
 
 void AppWindow::Update() {
-    UpdateCamera();
-    UpdateModel();
-    UpdateSkyBox();
-    light_rot_y += 0.707f * Time::GetDeltaTime();
-}
-
-void AppWindow::UpdateCamera() {
-    RECT rc = getClientWindowRect();
-    mat4x4 world_cam = mat4x4::rotation(rot_x, rot_y, 0.0f);
-
-    vec3 new_pos = world_camera.getTranslation() + (world_cam.getXDirection() * rightward + world_cam.getYDirection() * upward + world_cam.getZDirection() * forward) * Time::GetDeltaTime();
-
-    world_cam *= mat4x4::translation(new_pos);
-
-    world_camera = world_cam;
-    view_camera = world_cam.getInverse();
-    // proj_camera = mat4x4::orthoLH(
-    //     (rc.right - rc.left) / 300.0f,
-    //     (rc.bottom - rc.top) / 300.0f,
-    //     -4.0f,
-    //     4.0f
-    // );
-    proj_camera = mat4x4::perspectiveFovLH(
-        1.57f,
-        (float)(rc.right - rc.left) / (float)(rc.bottom - rc.top),
-        0.1f,
-        100.0f
-    );
-}
-
-void AppWindow::UpdateModel() {
-    constant cc;
-
-    cc.world = mat4x4::identity;
-    cc.view = view_camera;
-    cc.proj = proj_camera;
-    cc.camera_position = world_camera.getTranslation();
-    cc.light_direction = vec4::point(mat4x4::rotationY(light_rot_y).getZDirection());
-    cc.time = Time::GetTime();
-
-    // constant_buffer->Update(&cc);
-    Element::UpdateConstantBuffer(&cc, ELEMENTS_FLAGS_ALL & ~ELEMENTS_FLAGS_SKYBOX);
-}
-
-void AppWindow::UpdateSkyBox() {
-    constant cc;
-
-    cc.world = mat4x4::scale(vec3(100.0f, 100.0f, 100.0f)) * mat4x4::translation(world_camera.getTranslation());
-    cc.view = view_camera;
-    cc.proj = proj_camera;
-    cc.camera_position = world_camera.getTranslation();
-    cc.light_direction = vec4::point(mat4x4::rotationY(light_rot_y).getZDirection());
-    cc.time = Time::GetTime();
-
-    // sky_constant_buffer->Update(&cc);
-    Element::UpdateConstantBuffer(&cc, ELEMENTS_FLAGS_ALL & ~ELEMENTS_FLAGS_NOT_SKYBOX);
-}
-
-void AppWindow::DrawMesh(
-    const std::shared_ptr<Mesh> &mesh, 
-    const std::shared_ptr<VertexShader> &vertex_shader, 
-    const std::shared_ptr<PixelShader> &pixel_shader, 
-    const std::shared_ptr<ConstantBuffer> &constant_buffer,
-    const std::shared_ptr<Texture> *textures, 
-    UINT texture_count
-) {
-    
-    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(vertex_shader, constant_buffer);
-    GraphicsEngine::Get()->GetRenderSystem()->SetConstantBuffer(pixel_shader, constant_buffer);
-
-    GraphicsEngine::Get()->GetRenderSystem()->SetVertexShader(vertex_shader);
-    GraphicsEngine::Get()->GetRenderSystem()->SetPixelShader(pixel_shader);
-    
-    GraphicsEngine::Get()->GetRenderSystem()->SetTexture(pixel_shader, textures, texture_count);
-
-    GraphicsEngine::Get()->GetRenderSystem()->SetVertexBuffer(mesh->GetVertexBuffer());
-    GraphicsEngine::Get()->GetRenderSystem()->SetIndexBuffer(mesh->GetIndexBuffer());
-
-    GraphicsEngine::Get()->GetRenderSystem()->DrawIndexedTriangleList(mesh->GetIndexBuffer()->GetIndexListSize(), 0, 0);
+    Element::UpdateElements();
 }

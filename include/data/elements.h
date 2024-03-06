@@ -9,42 +9,47 @@
 #include "graphics/components/buffers.h"
 #include "elementary/math.h"
 
-#define ELEMENTS_FLAGS_NONE 0x0
-#define ELEMENTS_FLAGS_SKYBOX 0x1
-#define ELEMENTS_FLAGS_NOT_SKYBOX 0x2
-#define ELEMENTS_FLAGS_CULL_FRONT 0x4
-#define ELEMENTS_FLAGS_CULL_BACK 0x8
-#define ELEMENTS_FLAGS_DEFAULT 0xa
-#define ELEMENTS_FLAGS_ALL 0xf
+class Element;
+class Component;
+class Transform;
+class Renderer;
 
-class Element : public Resource, public std::enable_shared_from_this<Element> {
+struct ElementData {
+    std::unordered_map<std::wstring, std::shared_ptr<Texture>> textures;
+    std::unordered_map<std::wstring, std::shared_ptr<Mesh>> meshes;
+    std::unordered_map<std::wstring, std::shared_ptr<PixelShader>> pixel_shaders;
+    std::unordered_map<std::wstring, std::shared_ptr<VertexShader>> vertex_shaders;
+    std::unordered_map<std::wstring, std::shared_ptr<Element>> elements;
+};
+
+class Element : public Resource {
 public:
+    static std::unordered_map<std::wstring, std::shared_ptr<Component> (*)(Element *base)> generators;
+
     static void Load(const wchar_t *file_path);
-    static void Draw(UINT flags);
-    static void UpdateConstantBuffer(const constant *cc, UINT flags);
+    static void UpdateElements();
 
     Element(const wchar_t *full_path);
     ~Element();
 
-    void Draw();
-    void UpdateConstantBuffer(const constant *cc);
+    void Init();
+    void Update();
+
+    std::shared_ptr<Transform> GetTransform();
+    std::shared_ptr<Renderer> GetRenderer();
+    std::shared_ptr<Component> *GetComponents();
+    UINT GetComponentCount();
+    std::shared_ptr<Component> GetComponent(UINT id);
 private:
-    static std::unordered_map<std::wstring, std::shared_ptr<Texture>> global_textures;
-    static std::unordered_map<std::wstring, std::shared_ptr<Mesh>> global_meshes;
-    static std::unordered_map<std::wstring, std::shared_ptr<PixelShader>> global_pixel_shaders;
-    static std::unordered_map<std::wstring, std::shared_ptr<VertexShader>> global_vertex_shaders;
-    static std::unordered_map<std::wstring, std::shared_ptr<Element>> global_elements;
+    static ElementData global;
 
     static std::shared_ptr<Element> *element_list;
     static UINT element_count;
 
-    UINT flags = 0;
-    std::shared_ptr<Mesh> mesh;
-    std::shared_ptr<PixelShader> pixel_shader;
-    std::shared_ptr<VertexShader> vertex_shader;
-    std::shared_ptr<ConstantBuffer> constant_buffer;
-    std::shared_ptr<Texture> *textures;
-    UINT texture_count = 0;
+    std::shared_ptr<Transform> transform = nullptr;
+    std::shared_ptr<Renderer> renderer = nullptr;
+    std::shared_ptr<Component> *components = nullptr;
+    UINT component_count = 0;
 };
 
 class ElementManager : public ResourceManager {

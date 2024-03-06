@@ -64,9 +64,7 @@ Mesh::Mesh(const wchar_t *full_path) : Resource(full_path) {
     index_buffer = GraphicsEngine::Get()->GetRenderSystem()->CreateIndexBuffer(&index_list[0], (UINT)index_list.size());
 }
 
-Mesh::~Mesh() {
-    //texture->Release();
-}
+Mesh::~Mesh() {}
 
 std::shared_ptr<VertexBuffer> &Mesh::GetVertexBuffer() {
     return vertex_buffer;
